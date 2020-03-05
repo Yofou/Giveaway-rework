@@ -161,7 +161,7 @@ class Bot extends Client {
     return embed
   }
 
-  listenForCommands(message) {
+  async listenForCommands(message) {
     // Ignore dms
     if (typeof message.channel == 'DMChannel') return;
 
@@ -202,7 +202,7 @@ class Bot extends Client {
 
     if (command.args && !args.length) {
       if (command.usage) {
-        message.channel.send(command.usageEmbed('',message.guild));
+        message.channel.send(await command.usageEmbed('',message.guild));
       }
       return;
     }

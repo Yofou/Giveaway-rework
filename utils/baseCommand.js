@@ -54,7 +54,7 @@ class Command {
     // check if the user has permission or an overide role to use this command
     const rolesDB = require( './databases/roles.json' )
     if (rolesDB[message.guild.id]){
-      for (roleID of rolesDB[message.guild.id]){
+      for (let roleID of rolesDB[message.guild.id]){
         if (message.member.roles.cache.has( roleID )) userpass = true; break
       }
     }
@@ -64,22 +64,30 @@ class Command {
     }
   }
 
-  async lookForDeltedRoles(guild) {
+  async getSafeRoleDB(guild) {
 
     let rolesDB = require( './databases/roles.json' )
     let filter = [];
 
-    console.log(guild)
+    if (!rolesDB[guild.id]) return false
 
-    rolesDB[guild.id].filter( (roleID) => {
+    return await guild.roles
+    .fetch()
+    .then( (roles) => {
+      for (let roleID of rolesDB[guild.id]){
+        if (!roles.cache.has( roleID )) filter.push( roleID )
+      }
 
-        guild.roles
-        .fetch(roleID)
-        .then( (role) => {
-          if (role) return role
-        })
 
-    } )
+      rolesDB[guild.id] = rolesDB[guild.id].filter( role => !filter.includes( role ) )
+
+      if (rolesDB[guild.id].length == 0) delete rolesDB[guild.id]
+
+      this.saveJsonFile( './utils/databases/roles.json', JSON.stringify( rolesDB ) )
+
+      return rolesDB
+
+    })
 
   }
 

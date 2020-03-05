@@ -13,7 +13,7 @@ class Grole extends BaseCommand {
     this.usage += `\nAlias: ${ this.allias.join(',') }`
   }
 
-  usageEmbed(error = '',guild){
+  async usageEmbed(error = '',guild){
     const data = [
       'role(ID/Mention): a role that you want to have permission to use the giveaway commands'
     ];
@@ -32,10 +32,21 @@ class Grole extends BaseCommand {
       )
       .setTimestamp();
 
-    this.lookForDeltedRoles( guild )
+    if (!guild) return embed
+
+    const rolesDB = await this.getSafeRoleDB( guild ).then( rolesDB => rolesDB )
+
+      if (rolesDB){
+        let responce = [];
+        for (let roleID of rolesDB[guild.id]){
+          responce.push( `<@&${roleID}>` )
+        }
+
+        if (responce.length > 0) embed.addField('Giveaway Roles',responce.join(','))
+      }
 
 
-    return embed;
+    return embed
   }
 
   getIDFromMention(mention) {
@@ -61,9 +72,9 @@ class Grole extends BaseCommand {
 
     message.guild.roles
     .fetch(roleID)
-    .then(role => {
+    .then( async (role) => {
 
-      if (!role) return message.channel.send( this.usageEmbed(`Sorry cant find the role of ${roleArg}`) )
+      if (!role) return message.channel.send( await this.usageEmbed(`Sorry cant find the role of ${roleArg}`) )
       let rolesDB = require( '../utils/databases/roles.json' )
 
       if (!rolesDB[message.guild.id]) rolesDB[message.guild.id] = []
@@ -83,7 +94,7 @@ class Grole extends BaseCommand {
       this.saveJsonFile( './utils/databases/roles.json', JSON.stringify( rolesDB ) )
 
     })
-    .catch(e => message.channel.send( this.usageEmbed( 'Uh oh unexpected error please contact Yofou#0420' ) ));
+    .catch(async (e) => message.channel.send( await this.usageEmbed( 'Uh oh unexpected error please contact Yofou#0420' ) ));
 
   }
 
