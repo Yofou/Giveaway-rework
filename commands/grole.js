@@ -2,7 +2,7 @@ const BaseCommand = require('../utils/baseCommand.js');
 
 class Grole extends BaseCommand {
   constructor(prefix) {
-    super('role', `role [roleID/roleMention]`, 'Toggle on/off roles to overide permission to do giveaway commands', {
+    super('role', `role [role ID/role mention/role name]`, 'Toggle on/off roles to overide permission to do giveaway commands', {
       prefix: prefix
     });
     this.allias = [
@@ -15,7 +15,7 @@ class Grole extends BaseCommand {
 
   async usageEmbed(error = '',guild){
     const data = [
-      'role(ID/Mention): a role that you want to have permission to use the giveaway commands'
+      'role (ID/Mention/Name): a role that you want to have permission to use the giveaway commands'
     ];
     const embed = this.RichEmbed().setColor('#7FB3D5');
 
@@ -28,7 +28,7 @@ class Grole extends BaseCommand {
       .addField('Parameters Help', data.join('\n\n'))
       .addField(
         'Examples',
-        `${this.prefix}roles 672970287200993325 \n${this.prefix}roles @RoleName`
+        `${this.prefix}roles 672970287200993325 \n${this.prefix}roles @RoleName\n${this.prefix}roles RoleName`
       )
       .setTimestamp();
 
@@ -71,20 +71,30 @@ class Grole extends BaseCommand {
     const roleID = this.getIDFromMention( roleArg )
 
     message.guild.roles
-    .fetch(roleID)
-    .then( async (role) => {
+    .fetch()
+    .then( async (roles) => {
 
-      if (!role) return message.channel.send( await this.usageEmbed(`Sorry cant find the role of ${roleArg}`) )
+      roles = roles.cache
+      let role;
+
+      if ( roles.get( roleID ) ){
+        role = roles.get( roleID )
+      } else if (roles.find( role => role.name == roleID )) {
+        role = roles.find( role => role.name == roleID )
+      } else {
+        return message.channel.send( await this.usageEmbed(`Sorry cant find the role of ${roleArg}`) )
+      }
+
       let rolesDB = require( '../utils/databases/roles.json' )
 
       if (!rolesDB[message.guild.id]) rolesDB[message.guild.id] = []
 
       let responce;
-      if (rolesDB[message.guild.id].includes( roleID )){
-        rolesDB[message.guild.id] = rolesDB[message.guild.id].filter( id => id != roleID )
+      if (rolesDB[message.guild.id].includes( role.id )){
+        rolesDB[message.guild.id] = rolesDB[message.guild.id].filter( id => id != role.id )
         responce = `Removed <@&${role.id}> from the roster`
       } else {
-        rolesDB[message.guild.id].push( roleID )
+        rolesDB[message.guild.id].push( role.id )
         responce = `Added <@&${role.id}> from the roster`
       }
 
@@ -93,8 +103,14 @@ class Grole extends BaseCommand {
       message.channel.send( responce )
       this.saveJsonFile( './utils/databases/roles.json', JSON.stringify( rolesDB ) )
 
-    })
-    .catch(async (e) => message.channel.send( await this.usageEmbed( 'Uh oh unexpected error please contact Yofou#0420' ) ));
+
+    } )
+    .catch( async (e) => {
+
+      console.log( e )
+      return message.channel.send( await this.usageEmbed( 'Uh oh unexpected error please contact Yofou#0420' ) )
+
+    });
 
   }
 
