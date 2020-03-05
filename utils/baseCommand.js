@@ -50,6 +50,8 @@ class Command {
   }
 
   checkGiveawayPerms(message){
+
+
     let userpass = false;
     // check if the user has permission or an overide role to use this command
     const rolesDB = require( './databases/roles.json' )
@@ -59,9 +61,7 @@ class Command {
       }
     }
 
-    if (!message.member.hasPermission( 'MANAGE_SERVER' ) && !userpass){
-      return message.channel.send( ` <@${message.author.id}> Sorry but you dont have the required role or permissions to run this command` )
-    }
+    return (!message.member.hasPermission( 'MANAGE_GUILD' ) && !userpass)
   }
 
   async getSafeRoleDB(guild) {

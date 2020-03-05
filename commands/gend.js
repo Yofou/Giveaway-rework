@@ -5,7 +5,7 @@ class Gend extends BaseCommand {
     super('end', `end [messageID]`, 'Ends/Rerolls a giveaway ahead of time', {
       prefix: prefix
     });
-    this.allias.push( 'roll' )
+    this.allias = ['roll','groll','gend']
     this.usage += `\nAlias: ${ this.allias.join(',') }`
   }
 
@@ -33,7 +33,7 @@ class Gend extends BaseCommand {
 
   async run(client, message, args){
 
-    this.checkGiveawayPerms(message);
+    if (this.checkGiveawayPerms(message)) return message.channel.send( `<@${message.author.id}> Sorry but you dont have the required role or permissions to run this command` );
 
     let channel;
     if ( args.includes('-c') || args.includes('-channel') ){

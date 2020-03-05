@@ -65,7 +65,7 @@ class Grole extends BaseCommand {
 
   async run(client, message, args){
 
-    if (!message.member.hasPermission('MANAGE_SERVER')) return message.channel.send( 'Sorry but you dont have the permissions to do this command :(' )
+    if (!message.member.hasPermission('MANAGE_GUILD')) return message.channel.send( 'Sorry but you dont have the permissions to do this command :(' )
 
     let [roleArg] = args
     const roleID = this.getIDFromMention( roleArg )

@@ -36,7 +36,7 @@ class Gpost extends BaseCommand {
   // the main method of the command
   async run(client, message, args){
 
-    this.checkGiveawayPerms(message);
+    if (this.checkGiveawayPerms(message)) return message.channel.send( `<@${message.author.id}> Sorry but you dont have the required role or permissions to run this command` );
 
     // First thing we need to do is grab and filter any optional arguments passed into the command. I.E -channel or -host
     let host;
