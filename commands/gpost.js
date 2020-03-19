@@ -56,10 +56,13 @@ class Gpost extends BaseCommand {
 
       // grab and validate it
       host = args[index + 1]
-      if ( !isNaN( Number( host ) ) ) {
+      if ( isNaN( Number( host ) ) ) {
+        let tag = message.channel.members.find( member => member.displayName.toLowerCase() == host.toLowerCase()  )
+        if (tag) host = `<@${tag.user.id}>`
+      } else {
         let tag = message.channel.members.get( host )
-        if (!tag) return message.channel.send( this.usageEmbed('Cant find the user by id') )
-        host = tag.user.tag
+        if (!tag) return message.channel.send( this.usageEmbed(`Sorry but I can\'t the userID by ${host} in this channel`) )
+        host = `<@${tag.user.id}>`
       }
 
       // then remove it from main args array
@@ -70,7 +73,7 @@ class Gpost extends BaseCommand {
 
 
     } else {
-      host = message.author.tag
+      host = `<@${message.author.id}>`
     }
 
     let channel;
