@@ -88,7 +88,7 @@ class Gend extends BaseCommand {
           message.edit( embed )
           msgChannel.react( '👌' )
           delete giveawayDB[ messageID ]
-          this.saveJsonFile('./utils/databases/giveaway.json',JSON.stringify( giveawayDB ))
+          this.saveJsonFile('./utils/databases/giveaway.json',JSON.stringify( giveawayDB,null,4 ))
 
           message.channel.send( embed.description + `\n${msgUrl}` )
 

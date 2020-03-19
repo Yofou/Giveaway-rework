@@ -83,7 +83,7 @@ class Command {
 
       if (rolesDB[guild.id].length == 0) delete rolesDB[guild.id]
 
-      this.saveJsonFile( './utils/databases/roles.json', JSON.stringify( rolesDB ) )
+      this.saveJsonFile( './utils/databases/roles.json', JSON.stringify( rolesDB,null,4 ) )
 
       return rolesDB
 

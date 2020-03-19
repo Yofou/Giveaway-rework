@@ -5,6 +5,8 @@ class Gpost extends BaseCommand {
     super('post', 'post [time] [winners] [title] (-c argument) (-h argument)', 'Posts a giveaway', {
       prefix: prefix
     });
+
+    this.caseSensitiveArgs = true;
   }
 
   // If anything goes wrong or just the user needs some basic knowledge this function will be run
@@ -40,12 +42,13 @@ class Gpost extends BaseCommand {
 
     // First thing we need to do is grab and filter any optional arguments passed into the command. I.E -channel or -host
     let host;
-    if ( args.includes('-h') || args.includes('-host') ){
+    let lowerArgs = args.map( arg => arg.toLowerCase() );
+    if ( lowerArgs.includes('-h') || lowerArgs.includes('-host') ){
 
       // find the index of the host argument
       let index;
-      if (args.includes('-h')) index = args.indexOf('-h')
-      if (args.includes('-host')) index = args.indexOf('-host')
+      if (lowerArgs.includes('-h')) index = lowerArgs.indexOf('-h')
+      if (lowerArgs.includes('-host')) index = lowerArgs.indexOf('-host')
 
 
       // makes sure atleast there is an argument next to the optional arg
@@ -53,10 +56,13 @@ class Gpost extends BaseCommand {
 
       // grab and validate it
       host = args[index + 1]
-      if ( !isNaN( Number( host ) ) ) {
+      if ( isNaN( Number( host ) ) ) {
+        let tag = message.channel.members.find( member => member.displayName.toLowerCase() == host.toLowerCase()  )
+        if (tag) host = `<@${tag.user.id}>`
+      } else {
         let tag = message.channel.members.get( host )
-        if (!tag) return message.channel.send( this.usageEmbed('Cant find the user by id') )
-        host = tag.user.tag
+        if (!tag) return message.channel.send( this.usageEmbed(`Sorry but I can\'t the userID by ${host} in this channel`) )
+        host = `<@${tag.user.id}>`
       }
 
       // then remove it from main args array
@@ -67,16 +73,17 @@ class Gpost extends BaseCommand {
 
 
     } else {
-      host = message.author.tag
+      host = `<@${message.author.id}>`
     }
 
     let channel;
-    if ( args.includes('-c') || args.includes('-channel') ){
+    lowerArgs = args.map( arg => arg.toLowerCase() );
+    if ( lowerArgs.includes('-c') || lowerArgs.includes('-channel') ){
 
       // find the index of the channel argument
       let index;
-      if (args.includes('-c')) index = args.indexOf('-c')
-      if (args.includes('-channel')) index = args.indexOf('-channel')
+      if (lowerArgs.includes('-c')) index = lowerArgs.indexOf('-c')
+      if (lowerArgs.includes('-channel')) index = lowerArgs.indexOf('-channel')
 
       // makes sure atleast there is an argument next to the optional arg
       if (index >= args.length - 1) return message.channel.send( this.usageEmbed( 'No argument passed into -c' ) )
@@ -161,7 +168,7 @@ class Gpost extends BaseCommand {
       message.react( '🎉' )
       let giveawayDB = require( '../utils/databases/giveaway.json' )
       giveawayDB[message.id] = giveawayObj
-      this.saveJsonFile('./utils/databases/giveaway.json',JSON.stringify( giveawayDB ))
+      this.saveJsonFile('./utils/databases/giveaway.json',JSON.stringify( giveawayDB,null,4 ))
     })
 
   }
