@@ -161,7 +161,7 @@ class Gpost extends BaseCommand {
       message.react( '🎉' )
       let giveawayDB = require( '../utils/databases/giveaway.json' )
       giveawayDB[message.id] = giveawayObj
-      this.saveJsonFile('./utils/databases/giveaway.json',JSON.stringify( giveawayDB ))
+      this.saveJsonFile('./utils/databases/giveaway.json',JSON.stringify( giveawayDB,null,4 ))
     })
 
   }

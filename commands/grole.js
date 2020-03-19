@@ -101,7 +101,7 @@ class Grole extends BaseCommand {
       if (rolesDB[message.guild.id].length == 0) delete rolesDB[message.guild.id]
 
       message.channel.send( responce )
-      this.saveJsonFile( './utils/databases/roles.json', JSON.stringify( rolesDB ) )
+      this.saveJsonFile( './utils/databases/roles.json', JSON.stringify( rolesDB,null,4 ) )
 
 
     } )
