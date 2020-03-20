@@ -1,5 +1,6 @@
 const { MessageEmbed, TextChannel, version } = require('discord.js');
 const fs = require('fs');
+const Pages = require('./pagers.js');
 
 const defaultOptions = {
   args: true,
@@ -47,6 +48,17 @@ class Command {
 
   RichEmbed() {
     return new MessageEmbed()
+  }
+
+  menu(
+    channel = new TextChannel(),
+    uid,
+    pages = [],
+    time = 120000,
+    reactions = { first: '⏪', back: '◀', next: '▶', last: '⏩', stop: '⏹' },
+    pageFooter = false
+  ) {
+    return new Pages(channel, uid, pages, time, reactions, pageFooter);
   }
 
   checkGiveawayPerms(message){
@@ -120,7 +132,7 @@ class Command {
         .setFooter(`${this.name.toUpperCase()} Help`);
     } else {
       embed = this.RichEmbed()
-        .setColor('#8fde5d')
+        .setColor('#7FB3D5')
         .addField('Usage: ', this.usage)
         .addField('Description: ', this.description)
         .setTimestamp();
