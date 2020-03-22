@@ -54,7 +54,7 @@ class Gfind extends BaseCommand {
       for (let inner of outer) {
         let timeLeft = moment( Date.now() ).preciseDiff( inner.deadline )
         tEmbed.addField(
-          `https://discordapp.com/channels/${message.guild.id}/${inner.channelID}/${inner.channelID}/${inner.messageID}`,
+          `https://discordapp.com/channels/${message.guild.id}/${inner.channelID}/${inner.messageID}`,
           `\`\`\`\n` +
             `🏷️ Title: ${inner.title}\n` +
             `⏰ Time Remaining: ${timeLeft}\n` +
