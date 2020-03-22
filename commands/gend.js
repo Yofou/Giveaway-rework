@@ -5,7 +5,7 @@ class Gend extends BaseCommand {
     super('end', `end [messageID]`, 'Ends/Rerolls a giveaway ahead of time', {
       prefix: prefix
     });
-    this.allias = ['roll','groll','gend']
+    this.allias = ['roll','groll','gend','gcancel','cancel']
     this.usage += `\nAlias: ${ this.allias.join(',') }`
   }
 

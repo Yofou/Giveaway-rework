@@ -27,7 +27,7 @@ client.setInterval( () => {
           const embed = client.finishEmbed( users,orignalEmbed )
           message.edit( embed )
           delete giveawayDB[ message.id ]
-          fs.writeFile('./utils/databases/giveaway.json', JSON.stringify( giveawayDB ) , 'utf8', function(err) {
+          fs.writeFile('./utils/databases/giveaway.json', JSON.stringify( giveawayDB, null, 4 ) , 'utf8', function(err) {
             if (err) {
               console.log('An error occured while writing JSON Object to file.');
               return console.log(err);
