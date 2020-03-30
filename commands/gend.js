@@ -36,36 +36,10 @@ class Gend extends BaseCommand {
 
     if (this.checkGiveawayPerms(message)) return message.channel.send( `<@${message.author.id}> Sorry but you dont have the required role or permissions to run this command` );
 
-    let channel;
-    if ( args.includes('-c') || args.includes('-channel') ){
-
-      let index;
-      if (args.includes('-c')) index = args.indexOf('-c')
-      if (args.includes('-channel')) index = args.indexOf('-channel')
-
-      if (index >= args.length - 1) return message.channel.send( this.usageEmbed( 'No argument passed into -c' ) )
-
-      channel = args[index + 1]
-
-      if ( !isNaN( Number( channel ) ) ) {
-        channel = this.getChannelFromMention( message.guild.channels.cache,channel )
-        if (!channel) return message.channel.send( this.usageEmbed('Cant find the channel by name/mention') )
-      } else {
-        channel = this.getChannelFromMention( message.guild.channels.cache,channel )
-        if (!channel) return message.channel.send( this.usageEmbed('Cant find the channel by id') )
-      }
-
-      if ( !channel.permissionsFor(message.member).has('VIEW_CHANNEL') ) return message.channel.send( this.usageEmbed( 'Sorry but you don\'t have permission to view that channel' ) )
-
-      args = args.filter(arg => {
-          if (arg != args[index] && arg != args[index + 1]) return arg
-        }
-      )
-
-
-    } else {
-      channel = message.channel
-    }
+    let channel = this.channelValidation(message,args)
+    if (channel.error) return message.channel.send( this.usageEmbed( channel.error ) );
+    args = channel.args
+    channel = channel.channel
 
     let [messageID] = args
     if ( isNaN( Number( messageID ) ) ) return message.channel.send( this.usageEmbed( 'Invalid message id (Not a number)' ) )

@@ -50,6 +50,49 @@ class Command {
     return new MessageEmbed()
   }
 
+  channelValidation(message,args){
+
+    let repsponseObj = {
+      args : args,
+      channel: message.channel,
+      error: false
+    }
+
+    if ( args.includes('-c') || args.includes('-channel') ){
+
+      let index;
+      let channel;
+      if (args.includes('-c')) index = args.indexOf('-c')
+      if (args.includes('-channel')) index = args.indexOf('-channel')
+
+      if (index >= args.length - 1) {repsponseObj['error'] = 'No argument passed into -c';return repsponseObj}
+
+      let channelInput = args[index + 1]
+
+      if ( isNaN( Number( channelInput ) ) ) {
+        channel = this.getChannelFromMention( message.guild.channels.cache,channelInput )
+        if (!channel) {repsponseObj['error'] = `Sorry But I can\'t find any channel via name/mention called ${channelInput}`;return repsponseObj}
+      } else {
+        channel = this.getChannelFromMention( message.guild.channels.cache,channelInput )
+        if (!channel) {repsponseObj['error'] = `Sorry But I can\'t find any channel via ID by ${channelInput}`;return repsponseObj}
+      }
+
+      if ( !channel.permissionsFor(message.member).has('VIEW_CHANNEL') ) {repsponseObj['error'] = 'Sorry but you don\'t have permission to view that channel';return repsponseObj}
+
+      args = args.filter(arg => {
+          if (arg != args[index] && arg != args[index + 1]) return arg
+        }
+      )
+
+      repsponseObj['channel'] = channel
+      repsponseObj['args'] = args
+    }
+
+
+    return repsponseObj
+
+  }
+
   menu(
     channel = new TextChannel(),
     uid,

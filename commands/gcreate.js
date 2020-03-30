@@ -11,20 +11,27 @@ class Gcreate extends BaseCommand {
 
   }
 
+  // This is a recursive method that will repeat this cycle until all the questions have been answered correctly.
+  // ask question --> listen for answer --> validate answer --> save answer in an array
   askQuestions(message,questions,answers,index = 0,retry = 1){
+
+    // If all questions have been answer stop the recursive loop and start processing all the answers into >post command
     if (index == questions.length) {
       message.channel.send( '🎉 Giveaway Created 🎉' )
       return message.client.commands.find(cmd => cmd.name == 'post').run(message.client,message,answers)
     }
 
+    // Send question
     message.channel.send(questions[index][0]).then(() => {
 
+      // Listen for a answer
       message.channel.awaitMessages(responce => responce.author.id == message.author.id, { max: 1, time: 120000, errors: ['time'] })
     		.then(collected => {
           let answer = collected.first().content
           if (answer.toLowerCase() == 'cancel') return collected.first().react( '👌' )
           if ( questions[index][1]( answer ) ) {
 
+            // Some prefix so the >post know where talking about the channel selection or who hosting the giveaway
             if ( index == 4 ) {
               answers.push('-c')
               if( answer.toLowerCase() == 'here' ) answer = message.channel.id
@@ -33,11 +40,15 @@ class Gcreate extends BaseCommand {
               answers.push('-h')
               if( answer.toLowerCase() == 'me' ) answer = message.author.id
             }
+
+            // Add the answer the datastructure
             answers.push( answer );
             this.askQuestions(message,questions,answers,index + 1)
           } else if (retry == 3){
+            // If to many tries giveup listening
             message.channel.send( 'Too many attempts' )
           } else {
+            // if answer failed the valaditon phase then add one to the retry counter
             this.askQuestions(message,questions,answers,index,retry + 1)
           }
     		})
@@ -49,7 +60,21 @@ class Gcreate extends BaseCommand {
     });
   }
 
+  // This just runs the recursive method called askQuestions
   async run(client, message, args){
+
+    if (this.checkGiveawayPerms(message)) return message.channel.send( `<@${message.author.id}> Sorry but you dont have the required role or permissions to run this command` );
+
+    // There alot going on here i wont add a coment through everything but ill give the basic structure of the actual parameters
+    // message = the discord.js message class builder
+    // questions = [
+    //                [{question : string},{answer validtion : arrow-function}],
+    //                ...
+    //             ]
+    // answers = []; this is just a chosen datastructure for me to put the answers into
+    // index = {number : int}; default is 0
+    // retry = {number : int}; default is 0 and recommended to keep it that way
+
     this.askQuestions(message,[
       ['Alright lets get started (type **cancel** at any time to abort the giveaway),\nHow long is this giveaway going to last for? **`in the format of days:hours:minutes:seconds`**',(answer) => {
         let time = Number( answer )
@@ -101,19 +126,8 @@ class Gcreate extends BaseCommand {
       ['and... the channel? **(type `here` if you want the giveaway to be posted in this channel)**',(answer) => {
         if (answer.toLowerCase() == 'here') return true
 
-        let channel;
-
-        if ( isNaN( Number( answer ) ) ) {
-          channel = this.getChannelFromMention( message.guild.channels.cache,answer )
-          if (!channel) {message.channel.send( `Cant find the channel by the mention of **${answer}**, try again` );return false}
-        } else {
-          channel = this.getChannelFromMention( message.guild.channels.cache,answer )
-          if (!channel) {message.channel.send( `Cant find the channel by the id of **${answer}**, try again` );return false}
-        }
-
-        // check if they have permission to use this channel
-        if ( !channel.permissionsFor(message.guild.me).has(['VIEW_CHANNEL','SEND_MESSAGES']) ) {message.channel.send( `Sorry but I don't have the correct permission to send/view to this channel, pick another` );return false}
-        if ( !channel.permissionsFor(message.member).has('VIEW_CHANNEL') ) {message.channel.send( `Sorry but you don't have the correct permission to view in this channel, pick another` );return false}
+        let channel = this.channelValidation( message, ['-c', answer] )
+        if (channel.error) {message.channel.send( channel.error );return false}
 
         return true
 

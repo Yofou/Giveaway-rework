@@ -76,42 +76,10 @@ class Gpost extends BaseCommand {
       host = `<@${message.author.id}>`
     }
 
-    let channel;
-    lowerArgs = args.map( arg => arg.toLowerCase() );
-    if ( lowerArgs.includes('-c') || lowerArgs.includes('-channel') ){
-
-      // find the index of the channel argument
-      let index;
-      if (lowerArgs.includes('-c')) index = lowerArgs.indexOf('-c')
-      if (lowerArgs.includes('-channel')) index = lowerArgs.indexOf('-channel')
-
-      // makes sure atleast there is an argument next to the optional arg
-      if (index >= args.length - 1) return message.channel.send( this.usageEmbed( 'No argument passed into -c' ) )
-
-      // grab and validate it
-      channel = args[index + 1]
-      if ( !isNaN( Number( channel ) ) ) {
-        channel = this.getChannelFromMention( message.guild.channels.cache,channel )
-        if (!channel) return message.channel.send( this.usageEmbed('Cant find the channel by id') )
-      } else {
-        channel = this.getChannelFromMention( message.guild.channels.cache,channel )
-        if (!channel) return message.channel.send( this.usageEmbed('Cant find the channel by name or mention') )
-      }
-
-      // check if they have permission to use this channel
-      if ( !channel.permissionsFor(message.guild.me).has(['VIEW_CHANNEL','SEND_MESSAGES']) ) return message.channel.send( this.usageEmbed( 'Sorry but I don\'t have permission to post/view a giveaway in that channel' ) )
-      if ( !channel.permissionsFor(message.member).has('VIEW_CHANNEL') ) return message.channel.send( this.usageEmbed( 'Sorry but you don\'t have permission to view in that channel' ) )
-
-      // remove the optional argument out of the main args array
-      args = args.filter(arg => {
-          if (arg != args[index] && arg != args[index + 1]) return arg
-        }
-      )
-
-
-    } else {
-      channel = message.channel
-    }
+    let channel = this.channelValidation(message,args)
+    if (channel.error) return message.channel.send( this.usageEmbed( channel.error ) );
+    args = channel.args
+    channel = channel.channel
 
     // destructure the arguments out of the main array
     let [ time,winners,...description ] = args
