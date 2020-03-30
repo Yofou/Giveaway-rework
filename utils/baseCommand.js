@@ -77,7 +77,12 @@ class Command {
         if (!channel) {repsponseObj['error'] = `Sorry But I can\'t find any channel via ID by ${channelInput}`;return repsponseObj}
       }
 
-      if ( !channel.permissionsFor(message.member).has('VIEW_CHANNEL') ) {repsponseObj['error'] = 'Sorry but you don\'t have permission to view that channel';return repsponseObj}
+      let ignored = require('../utils/databases/ignore.json');
+      if (ignored.channels.includes( channel.id )){
+        repsponseObj['error'] = 'Sorry but I can\'t post Giveaways in that channel (Channel is restricted by admins)';return repsponseObj
+      } else if ( !channel.permissionsFor(message.member).has( ['VIEW_CHANNEL'] ) ) {
+        repsponseObj['error'] = 'Sorry but you don\'t have permission to view that channel';return repsponseObj
+      }
 
       args = args.filter(arg => {
           if (arg != args[index] && arg != args[index + 1]) return arg

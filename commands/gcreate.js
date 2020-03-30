@@ -124,7 +124,7 @@ class Gcreate extends BaseCommand {
         return true
       }],
       ['and... the channel? **(type `here` if you want the giveaway to be posted in this channel)**',(answer) => {
-        if (answer.toLowerCase() == 'here') return true
+        if (answer.toLowerCase() == 'here') answer = message.channel.id
 
         let channel = this.channelValidation( message, ['-c', answer] )
         if (channel.error) {message.channel.send( channel.error );return false}
