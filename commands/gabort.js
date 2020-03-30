@@ -1,12 +1,10 @@
 const BaseCommand = require('../utils/baseCommand.js');
 
-class Gend extends BaseCommand {
+class Gabort extends BaseCommand {
   constructor(prefix) {
-    super('end', `end [messageID]`, 'Ends/Rerolls a giveaway ahead of time', {
+    super('abort', `abort [messageID]`, 'Aborts a giveaway so no winner will be picked', {
       prefix: prefix
     });
-    this.allias = ['roll','groll','gend','gcancel','cancel']
-    this.usage += `\nAlias: ${ this.allias.join(',') }`
   }
 
   usageEmbed(error = '') {
@@ -25,7 +23,7 @@ class Gend extends BaseCommand {
       .addField('Parameters Help', data.join('\n'))
       .addField(
         'Examples',
-        `${this.prefix}end 684767524671586305 \n${this.prefix}roll 684767524671584326\n${this.prefix}end 693871103478595704 -c 638096970996776977 \n${this.prefix}roll -c 638096970996776977 693871103478595704`
+        `${this.prefix}abort 684767524671586305\n${this.prefix}abort 693871103478595704 -c 638096970996776977 \n${this.prefix}abort -c 638096970996776977 693871103478595704`
       )
       .setTimestamp();
 
@@ -77,31 +75,25 @@ class Gend extends BaseCommand {
     .fetch(messageID)
     .then(message => {
         const orignalEmbed = message.embeds[0]
-        const msgUrl = message.url
-        if (!orignalEmbed) return msgChannel.channel.send( this.usageEmbed( 'Not an embed message' ) )
-        if (orignalEmbed.url != 'https://www.VerifedGiveaway.com/') return msgChannel.channel.send( this.usageEmbed( 'Invalid giveaway embed' ) )
 
-        message.reactions.cache.get('🎉').users
-        .fetch()
-        .then( (users) => {
+        const embed = this.RichEmbed()
+          .setTitle( orignalEmbed.title )
+          .setColor('#ff726f')
+          .setDescription(`**Sorry but this giveaway has been cancelled**`)
+          .setFooter(orignalEmbed.footer.text)
 
-          const embed = client.finishEmbed( users,orignalEmbed )
-          message.edit( embed )
-          msgChannel.react( '👌' )
-          delete giveawayDB[ messageID ]
-          this.saveJsonFile('./utils/databases/giveaway.json',JSON.stringify( giveawayDB,null,4 ))
-
-          message.channel.send( embed.description + `\n${msgUrl}` )
-
-        } )
-        .catch( e => message.channel.send( this.usageEmbed( 'Uh oh unexpected error please contact Yofou#0420' ) ))
-
+        message.edit(embed);
+        message.reactions.removeAll().catch(error => console.error('Failed to clear reactions: ', error));
+        delete giveawayDB[messageID]
+        this.saveJsonFile( './utils/databases/giveaway.json',JSON.stringify( giveawayDB,null,4 ) )
+        msgChannel.channel.send(`😢 Giveaway Aborted 😢`)
     })
     .catch( e => {
+      console.log(e)
       message.channel.send( this.usageEmbed( 'Cant find the a message in this channel by that id' ) )
     } )
   }
 }
 
 
-module.exports = Gend
+module.exports = Gabort

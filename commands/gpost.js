@@ -15,7 +15,7 @@ class Gpost extends BaseCommand {
       'time: A unit of time for when the giveaway will end in the format of days:hours:minutes:seconds',
       'winners: The number of winners the giveaway will randomly pick',
       'title: Ideally what you\'re going to be giving away',
-      'additional arguments: -h {text/mention} & -c {channelID/mention}'
+      'additional arguments: -h {text/mention} & -c {channelID/mention/name}'
     ];
     const embed = this.RichEmbed().setColor('#7FB3D5');
 
@@ -91,15 +91,16 @@ class Gpost extends BaseCommand {
       // grab and validate it
       channel = args[index + 1]
       if ( !isNaN( Number( channel ) ) ) {
-        channel = message.guild.channels.cache.get(channel)
+        channel = this.getChannelFromMention( message.guild.channels.cache,channel )
         if (!channel) return message.channel.send( this.usageEmbed('Cant find the channel by id') )
       } else {
-        channel = message.guild.channels.cache.get(channel.replace(/\D/g,''))
-        if (!channel) return message.channel.send( this.usageEmbed('Cant find the channel by id') )
+        channel = this.getChannelFromMention( message.guild.channels.cache,channel )
+        if (!channel) return message.channel.send( this.usageEmbed('Cant find the channel by name or mention') )
       }
 
       // check if they have permission to use this channel
-      if ( !channel.permissionsFor(message.member).has('MANAGE_SERVER') ) return message.channel.send( this.usageEmbed( 'Sorry but you don\'t have permission to post a giveaway in that channel' ) )
+      if ( !channel.permissionsFor(message.guild.me).has(['VIEW_CHANNEL','SEND_MESSAGES']) ) return message.channel.send( this.usageEmbed( 'Sorry but I don\'t have permission to post/view a giveaway in that channel' ) )
+      if ( !channel.permissionsFor(message.member).has('VIEW_CHANNEL') ) return message.channel.send( this.usageEmbed( 'Sorry but you don\'t have permission to view in that channel' ) )
 
       // remove the optional argument out of the main args array
       args = args.filter(arg => {
@@ -153,6 +154,7 @@ class Gpost extends BaseCommand {
     if ( isNaN( Number( winners ) ) ) return message.channel.send( this.usageEmbed(`${winners} is not a number`) )
     winners = Number( winners )
     if ( winners <= 0 ) return message.channel.send( this.usageEmbed('Winner argument cant be 0 or smaller') )
+    if ( winners > message.guild.memberCount ) return message.channel.send( this.usageEmbed('Winner argument cant be more than the guilds member count') )
 
     // structure the giveaway object
     const giveawayObj = {

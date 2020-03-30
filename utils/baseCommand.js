@@ -61,6 +61,22 @@ class Command {
     return new Pages(channel, uid, pages, time, reactions, pageFooter);
   }
 
+  getChannelFromMention(cache, mention) {
+    if (!mention) return;
+
+    if (mention.startsWith('<#') && mention.endsWith('>')) {
+      mention = mention.slice(2, -1);
+
+      if (mention.startsWith('!')) {
+        mention = mention.slice(1);
+      }
+    }
+
+    return cache.find(
+      channel => channel.name == mention || channel.id == mention
+    );
+  }
+
   checkGiveawayPerms(message){
 
 

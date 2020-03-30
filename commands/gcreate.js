@@ -12,11 +12,14 @@ class Gcreate extends BaseCommand {
   }
 
   askQuestions(message,questions,answers,index = 0,retry = 1){
-    if (index == questions.length) return message.client.commands.find(cmd => cmd.name == 'post').run(message.client,message,answers)
+    if (index == questions.length) {
+      message.channel.send( '🎉 Giveaway Created 🎉' )
+      return message.client.commands.find(cmd => cmd.name == 'post').run(message.client,message,answers)
+    }
 
     message.channel.send(questions[index][0]).then(() => {
 
-      message.channel.awaitMessages(responce => responce.author.id == message.author.id, { max: 1, time: 30000, errors: ['time'] })
+      message.channel.awaitMessages(responce => responce.author.id == message.author.id, { max: 1, time: 120000, errors: ['time'] })
     		.then(collected => {
           let answer = collected.first().content
           if (answer.toLowerCase() == 'cancel') return collected.first().react( '👌' )
@@ -48,7 +51,7 @@ class Gcreate extends BaseCommand {
 
   async run(client, message, args){
     this.askQuestions(message,[
-      ['Alright lets get started (type **cancel** at any time to abort the giveaway),\nHow long is this giveaway going to last for? `in the format of **days:hours:minutes:seconds**`',(answer) => {
+      ['Alright lets get started (type **cancel** at any time to abort the giveaway),\nHow long is this giveaway going to last for? **`in the format of days:hours:minutes:seconds`**',(answer) => {
         let time = Number( answer )
         if ( isNaN( time ) ) {
           if (!answer.includes(':')) {message.channel.send( `**${answer}** is an invalid time format, try again` );return false}
@@ -77,6 +80,7 @@ class Gcreate extends BaseCommand {
         answer = Number(answer)
         if ( isNaN(answer) ) {message.channel.send( `**${answer}** is not a number, try again` );return false}
         if ( answer < 1) {message.channel.send( `**${answer}** is too small you fool, try again` );return false}
+        if ( answer > message.guild.memberCount ) {message.channel.send( 'Winner argument cant be more than the guilds member count, try again' );return false}
         return true
       }],
       ['What about the title?',(answer) => {
@@ -98,16 +102,18 @@ class Gcreate extends BaseCommand {
         if (answer.toLowerCase() == 'here') return true
 
         let channel;
+
         if ( isNaN( Number( answer ) ) ) {
-          channel = message.guild.channels.cache.get(answer.replace(/\D/g,''))
+          channel = this.getChannelFromMention( message.guild.channels.cache,answer )
           if (!channel) {message.channel.send( `Cant find the channel by the mention of **${answer}**, try again` );return false}
         } else {
-          channel = message.guild.channels.cache.get(answer)
+          channel = this.getChannelFromMention( message.guild.channels.cache,answer )
           if (!channel) {message.channel.send( `Cant find the channel by the id of **${answer}**, try again` );return false}
         }
 
         // check if they have permission to use this channel
-        if ( !channel.permissionsFor(message.member).has('MANAGE_SERVER') ) {message.channel.send( `Sorry but you dont have the correct permission to send to this channel, pick another` );return false}
+        if ( !channel.permissionsFor(message.guild.me).has(['VIEW_CHANNEL','SEND_MESSAGES']) ) {message.channel.send( `Sorry but I don't have the correct permission to send/view to this channel, pick another` );return false}
+        if ( !channel.permissionsFor(message.member).has('VIEW_CHANNEL') ) {message.channel.send( `Sorry but you don't have the correct permission to view in this channel, pick another` );return false}
 
         return true
 

@@ -3,7 +3,7 @@ const Command = require('../utils/baseCommand.js');
 class Help extends Command {
   constructor(prefix) {
     super('help', 'help', 'List all commands and their information', {
-      args: false,
+      args : false,
       prefix: prefix
     });
   }
@@ -11,6 +11,12 @@ class Help extends Command {
   async run(client, message, args) {
     const helpEmbed = this.RichEmbed().setColor('#7FB3D5');
     let data;
+
+    if (args.length > 0){
+      const command = client.commands.find( cmd => cmd.name == args[0] || cmd.allias.includes( args[0] ) )
+      if (!command) return message.channel.send( `Sorry, I can't find the command called **${args[0]}**` )
+      return message.channel.send( await command.usageEmbed() )
+    }
 
     // Other Commands w/o Args
     data = [];

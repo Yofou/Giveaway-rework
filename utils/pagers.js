@@ -30,8 +30,10 @@ class Pages {
       this.msg = msg;
 
       if (missingPermissions) return;
-      this.addReactions();
-      this.createCollector();
+      if (this.pages.length > 1){
+        this.addReactions();
+        this.createCollector();
+      }
     });
   }
 

@@ -8,7 +8,7 @@ class Gfind extends BaseCommand {
       prefix: prefix,
       args: false,
     });
-    this.allias = ['gfind']
+    this.allias = ['gfind','glist','list']
     this.usage += `\nAlias: ${ this.allias.join(',') }`
   }
 
