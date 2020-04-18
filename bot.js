@@ -161,6 +161,53 @@ class Bot extends Client {
     return embed
   }
 
+  toWidget(string, funcObj) {
+    let string2 = string;
+    let brackets = { '{': [], '}': [] };
+    for (let bracket in brackets) {
+      for (let charIndex in string) {
+        if (string[charIndex] == bracket) brackets[bracket].push(charIndex);
+      }
+    }
+
+    if (brackets['{'].length != brackets['}'].length)
+      return 'Parsing Error: not closing brackets properly';
+
+    for (let i = 0; i < brackets['{'].length; i++) {
+      let start = parseInt(brackets['{'][i]) + 1;
+      let end = parseInt(brackets['}'][i]);
+      let innerBrackets = string.substring(start, end);
+
+      if (!innerBrackets.includes(':')) {
+        if (
+          innerBrackets in funcObj &&
+          typeof funcObj[innerBrackets] != 'function'
+        )
+          string2 = string2.replace(
+            `{${innerBrackets}}`,
+            funcObj[innerBrackets]
+          );
+      } else {
+        let [funcName, args] = innerBrackets.split(':');
+
+        if (args.split('|').includes(''))
+          return `Parse Error: too many '|' in ${innerBrackets}`;
+        args = args.split('|');
+
+        if (!(funcName in funcObj))
+          return `Function Error: Invalid function name ${funcName} in ${innerBrackets}`;
+
+        let funcValue = funcObj[funcName](args);
+        if (funcValue == undefined)
+          return `Function Error: ${funcName} has no return value`;
+
+        string2 = string2.replace(`{${innerBrackets}}`, funcValue);
+      }
+    }
+
+    return string2;
+  }
+
   async listenForCommands(message) {
     // Ignore dms
     if (typeof message.channel == 'DMChannel') return;
