@@ -43,4 +43,62 @@ client.setInterval( () => {
   }
 }, 10000 )
 
+client.setInterval( () => {
+
+  let widgets = require( './utils/databases/widget.json' )
+
+  for ( messageID in widgets) {
+
+    let widget = widgets[messageID]
+
+    let guild = client.guilds.cache.get( widget.guildID )
+    if (!guild) {delete widgets[messageID];continue}
+    let channel = guild.channels.cache.get( widget.channelID )
+    if (!channel) {delete widgets[messageID];continue}
+    channel.messages
+      .fetch(messageID)
+        .then(message => {
+
+          let tagFunctions = {
+            roleCount : (val) => {
+              let role;
+              let counter = 0
+              val = val[0].split( ' ' )
+
+              for (let rawRoles of val){
+                if (rawRoles.startsWith('<@&') && rawRoles.endsWith('>') ) {
+                  rawRoles = rawRoles.slice(3, -1);
+
+                  if (rawRoles.startsWith('!')) {
+                    rawRoles = rawRoles.slice(1);
+                  }
+                }
+
+                let role = guild.roles.cache.find( role => role.name == rawRoles || role.id == rawRoles );
+                if (role) counter += role.members.size
+              }
+
+              return counter
+            }
+          }
+
+          let embed = message.embeds[0]
+          embed.description = `${channel.toString()}\n${client.toWidget( widget.rawArgs,tagFunctions )}`
+
+          message.edit( embed )
+        })
+        .catch( err => {
+          if (err.code == 10008) delete widgets[messageID]
+        } )
+  }
+
+  fs.writeFile('./utils/databases/widget.json', JSON.stringify( widgets, null, 4 ) , 'utf8', function(err) {
+    if (err) {
+      console.log('An error occured while writing JSON Object to file.');
+      return console.log(err);
+    }
+  });
+
+}, 10000 )
+
 client.login(client.config.get('token'));
