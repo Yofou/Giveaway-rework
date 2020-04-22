@@ -16,7 +16,7 @@ Giveawaybot is a chatbot designed for a private discord server called Lethal Mob
 
 ## Installation
 
-Use the package manager [npm](https://pip.pypa.io/en/stable/) to install from my package.json.
+Use the package manager [npm](https://www.npmjs.com/package/npm) to install from my package.json.
 
 ```bash
 npm install
