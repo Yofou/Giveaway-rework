@@ -1,7 +1,44 @@
 const Bot = require('./bot.js');
 const fs = require('fs');
+const glob = require('glob');
+const { parse } = require('path');
+
+if (!fs.existsSync(`${__dirname}/utils/databases`)){
+    fs.mkdirSync(`${__dirname}/utils/databases`);
+    fs.writeFile(`./utils/databases/config.json`, JSON.stringify( { token: "place your bot token here", OWNER : "place the bot owner discord id here" }, null, 4 ) , 'utf8', function(err) {
+      if (err) {
+        console.log('An error occured while writing JSON Object to file.');
+        return console.log(err);
+      }
+      console.log( `${__dirname}/utils/databases/config.json has been generated.` )
+    });
+    return console.log( `Made ${__dirname}/utils/databases please fill out config.json in the created directory` )
+}
 
 const client = new Bot('>');
+
+client.on('ready', () => {
+
+  glob( `${__dirname}/utils/databases/*.json`, (err,files) => {
+    files = files.map( file => parse( file ).name )
+    const dbs = ['giveaway','ignore','roles','widget']
+
+    dbs.forEach( item => {
+      if ( !files.includes( item ) ) {
+        fs.writeFile(`./utils/databases/${item}.json`, JSON.stringify( {}, null, 4 ) , 'utf8', function(err) {
+          if (err) {
+            console.log('An error occured while writing JSON Object to file.');
+            return console.log(err);
+          }
+          console.log( `${__dirname}/utils/databases/${item}.json has been generated.` )
+        });
+      }
+    });
+
+    console.log(`Logged in as ${client.user.tag}!`);
+    client.user.setActivity(`for ${client.prefix}help`, { type: 'WATCHING' });
+  } )
+});
 
 client.buildCommands([['commands', './commands/']]);
 

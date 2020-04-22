@@ -45,11 +45,6 @@ class Bot extends Client {
     super(options);
     this.prefix = prefix;
     this.Constants = Constants;
-
-    this.on('ready', () => {
-      console.log(`Logged in as ${this.user.tag}!`);
-      this.user.setActivity(`for ${this.prefix}help`, { type: 'WATCHING' });
-    });
   }
 
   buildCollection() {
