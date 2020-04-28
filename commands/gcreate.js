@@ -22,7 +22,7 @@ class Gcreate extends BaseCommand {
     // Send question
     message.channel.send(questions[index][0]).then(() => {
       // Listen for a answer
-      message.channel.awaitMessages(responce => responce.author.id == message.author.id, { max: 1, time: 120000, errors: ['time'] })
+      message.channel.awaitMessages(response => response.author.id == message.author.id, { max: 1, time: 120000, errors: ['time'] })
     		.then(collected => {
           let answer = collected.first().content;
           if (answer.toLowerCase() == 'cancel') return collected.first().react('👌');
@@ -37,14 +37,14 @@ class Gcreate extends BaseCommand {
               if (answer.toLowerCase() == 'me') answer = message.author.id;
             }
 
-            // Add the answer the datastructure
+            // Add the answer the data structure
             answers.push(answer);
             this.askQuestions(message, questions, answers, index + 1);
           } else if (retry == 3) {
-            // If to many tries giveup listening
+            // If to many tries give up listening
             message.channel.send('Too many attempts');
           } else {
-            // if answer failed the valaditon phase then add one to the retry counter
+            // if answer failed the validation phase then add one to the retry counter
             this.askQuestions(message, questions, answers, index, retry + 1);
           }
     		})
@@ -59,13 +59,13 @@ class Gcreate extends BaseCommand {
   async run (client, message, args) {
     if (this.checkGiveawayPerms(message)) return message.channel.send(`<@${message.author.id}> Sorry but you dont have the required role or permissions to run this command`);
 
-    // There alot going on here i wont add a coment through everything but ill give the basic structure of the actual parameters
+    // There a lot going on here i wont add a comment through everything but ill give the basic structure of the actual parameters
     // message = the discord.js message class builder
     // questions = [
-    //                [{question : string},{answer validtion : arrow-function}],
+    //                [{question : string},{answer validation : arrow-function}],
     //                ...
     //             ]
-    // answers = []; this is just a chosen datastructure for me to put the answers into
+    // answers = []; this is just a chosen data structure for me to put the answers into
     // index = {number : int}; default is 0
     // retry = {number : int}; default is 0 and recommended to keep it that way
 
