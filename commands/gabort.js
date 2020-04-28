@@ -47,13 +47,13 @@ class Gabort extends BaseCommand {
     channel.messages
       .fetch(messageID)
       .then(message => {
-        const orignalEmbed = message.embeds[0];
+        const originalEmbed = message.embeds[0];
 
         const embed = this.RichEmbed()
-          .setTitle(orignalEmbed.title)
+          .setTitle(originalEmbed.title)
           .setColor('#ff726f')
           .setDescription('**Sorry but this giveaway has been cancelled**')
-          .setFooter(orignalEmbed.footer.text);
+          .setFooter(originalEmbed.footer.text);
 
         message.edit(embed);
         message.reactions.removeAll().catch(error => console.error('Failed to clear reactions: ', error));
