@@ -50,7 +50,7 @@ class Command {
   }
 
   channelValidation (message, args) {
-    const repsponseObj = {
+    const responseObj = {
       args: args,
       channel: message.channel,
       error: false
@@ -62,36 +62,36 @@ class Command {
       if (args.includes('-c')) index = args.indexOf('-c');
       if (args.includes('-channel')) index = args.indexOf('-channel');
 
-      if (index >= args.length - 1) { repsponseObj.error = 'No argument passed into -c'; return repsponseObj; }
+      if (index >= args.length - 1) { responseObj.error = 'No argument passed into -c'; return responseObj; }
 
       const channelInput = args[index + 1];
 
       if (isNaN(Number(channelInput))) {
         channel = this.getChannelFromMention(message.guild.channels.cache, channelInput);
-        if (!channel) { repsponseObj.error = `Sorry But I can\'t find any channel via name/mention called ${channelInput}`; return repsponseObj; }
+        if (!channel) { responseObj.error = `Sorry But I can\'t find any channel via name/mention called ${channelInput}`; return responseObj; }
       } else {
         channel = this.getChannelFromMention(message.guild.channels.cache, channelInput);
-        if (!channel) { repsponseObj.error = `Sorry But I can\'t find any channel via ID by ${channelInput}`; return repsponseObj; }
+        if (!channel) { responseObj.error = `Sorry But I can\'t find any channel via ID by ${channelInput}`; return responseObj; }
       }
 
       const ignored = require('../utils/databases/ignore.json');
       if (ignored.channels) {
         if (ignored.channels.includes(channel.id)) {
-          repsponseObj.error = 'Sorry but I can\'t post Giveaways in that channel (Channel is restricted by admins)'; return repsponseObj;
+          responseObj.error = 'Sorry but I can\'t post Giveaways in that channel (Channel is restricted by admins)'; return responseObj;
         }
       } else if (!channel.permissionsFor(message.member).has(['VIEW_CHANNEL'])) {
-        repsponseObj.error = 'Sorry but you don\'t have permission to view that channel'; return repsponseObj;
+        responseObj.error = 'Sorry but you don\'t have permission to view that channel'; return responseObj;
       }
       args = args.filter(arg => {
         if (arg != args[index] && arg != args[index + 1]) return arg;
       }
       );
 
-      repsponseObj.channel = channel;
-      repsponseObj.args = args;
+      responseObj.channel = channel;
+      responseObj.args = args;
     }
 
-    return repsponseObj;
+    return responseObj;
   }
 
   menu (
@@ -123,7 +123,7 @@ class Command {
 
   checkGiveawayPerms (message) {
     let userpass = false;
-    // check if the user has permission or an overide role to use this command
+    // check if the user has permission or an override role to use this command
     const rolesDB = require('./databases/roles.json');
     if (rolesDB[message.guild.id]) {
       for (const roleID of rolesDB[message.guild.id]) {
@@ -160,7 +160,7 @@ class Command {
   saveJsonFile (filePath, jsonObj) {
     fs.writeFile(filePath, jsonObj, 'utf8', function (err) {
       if (err) {
-        console.log('An error occured while writing JSON Object to file.');
+        console.log('An error occurred while writing JSON Object to file.');
         return console.log(err);
       }
     });
@@ -195,81 +195,6 @@ class Command {
     return embed;
   }
 
-  reactions (message, similarArray, embedTemplate, attachment = false) {
-    const author = message.author.id;
-
-    similarArray.sort(function (a, b) {
-      return b[1] - a[1];
-    });
-
-    const msg = this.RichEmbed()
-      .setColor('#7FB3D5')
-      .setAuthor('Did you mean?')
-      .setTimestamp()
-      .setFooter('Did you mean?');
-
-    const imgFiles = [];
-    let counter = 0;
-    for (const item of similarArray) {
-      if (counter >= 8) {
-        break;
-      }
-      msg.addField(`${counter + 1} : ${item[0]}`, '\n\u200B');
-      counter++;
-    }
-
-    let missingPermissions = false;
-    if (
-      !message.member.guild.me.hasPermission('MANAGE_MESSAGES') ||
-      !message.member.guild.me.hasPermission('ADD_REACTIONS')
-    ) {
-      const checkPermissions = '💡 *The bot doesn\'t have* **MANAGE_MESSAGES** *or* **ADD_REACTIONS** *permission!*';
-      missingPermissions = true;
-      msg.setDescription(checkPermissions);
-      msg.setFooter(
-        'Permission Issue: The bot needs MANAGE_MESSAGES & ADD_REACTIONS to work properly'
-      );
-    }
-
-    message.channel.send({ embed: msg, files: null }).then(async message => {
-      if (missingPermissions) return;
-
-      const emojis = ['1⃣', '2⃣', '3⃣', '4⃣', '5⃣', '6⃣', '7⃣', '8⃣'].slice(
-        0,
-        counter
-      );
-      for (const emoji of emojis) {
-        await message.react(emoji);
-      }
-
-      const filter = (reaction, user) => {
-        return emojis.includes(reaction.emoji.name) && user.id === author;
-      };
-
-      message
-        .awaitReactions(filter, { max: 1, time: 60000, errors: ['time'] })
-        .then(async collected => {
-          const reaction = collected.first();
-          const name = similarArray[emojis.indexOf(reaction.emoji.name)][0]
-            .split(' ')
-            .join('')
-            .toLowerCase();
-          const embed = await embedTemplate(
-            message.client,
-            name,
-            this.RichEmbed()
-          );
-          const channel = message.channel;
-          await message.delete();
-          await channel.send(embed);
-        })
-        .catch(async collected => {
-          console.log(collected);
-          await message.clearReactions();
-          await message.react('❌');
-        });
-    });
-  }
 }
 
 module.exports = Command;
