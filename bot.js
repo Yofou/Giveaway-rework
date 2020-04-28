@@ -1,7 +1,7 @@
 const { Client, Collection, Constants, MessageEmbed } = require('discord.js');
 const fs = require('fs');
 const moment = require('moment');
-require('moment-precise-range-plugin'); // for precide difference time calcucaltion
+require('moment-precise-range-plugin'); // for precise difference time calculation
 
 apiDefault = {
   apiRequestMethod: 'sequential',
@@ -105,7 +105,7 @@ class Bot extends Client {
     return embed;
   }
 
-  finishEmbed (users, orignalEmbed, func) {
+  finishEmbed (users, originalEmbed, func) {
     // from https://en.wikipedia.org/wiki/Fisher%E2%80%93Yates_shuffle#The_modern_algorithm
     function shuffle (a) {
       var j, x, i;
@@ -126,29 +126,29 @@ class Bot extends Client {
       .map(user => `<@${user.id}>`); // then remap the collection to only the things we need
 
     users = shuffle(users); // shuffle the array
-    const winnerAmount = Number(orignalEmbed.footer.text.split(' ')[0]);
+    const winnerAmount = Number(originalEmbed.footer.text.split(' ')[0]);
     users = users.splice(0, winnerAmount);
 
-    let winnerAnouncment = '';
+    let winnerAnnouncement = '';
 
     if (users.length == 0) {
-      winnerAnouncment = 'Nobody Won';
+      winnerAnnouncement = 'Nobody Won';
     } else if (users.length > 1) {
-      winnerAnouncment = 'Winners: ';
+      winnerAnnouncement = 'Winners: ';
     } else {
-      winnerAnouncment = 'Winner: ';
+      winnerAnnouncement = 'Winner: ';
     }
 
-    winnerAnouncment += users.join(' ');
+    winnerAnnouncement += users.join(' ');
 
-    const parsedDesc = orignalEmbed.description.split('\n');
+    const parsedDesc = originalEmbed.description.split('\n');
 
     const embed = new MessageEmbed()
-      .setTitle(orignalEmbed.title)
+      .setTitle(originalEmbed.title)
       .setColor('#7FB3D5')
       .setURL('https://www.VerifedGiveaway.com/')
-      .setDescription(`${winnerAnouncment}\n${parsedDesc[parsedDesc.length - 1]}`)
-      .setFooter(orignalEmbed.footer.text);
+      .setDescription(`${winnerAnnouncement}\n${parsedDesc[parsedDesc.length - 1]}`)
+      .setFooter(originalEmbed.footer.text);
 
     return embed;
   }
