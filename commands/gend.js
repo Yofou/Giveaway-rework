@@ -68,7 +68,7 @@ class Gend extends BaseCommand {
           .catch(e => message.channel.send(this.usageEmbed('Uh oh unexpected error please contact Yofou#0420')));
       })
       .catch(e => {
-        message.channel.send(this.usageEmbed('Cant find the a message in this channel by that id'));
+        message.channel.send(this.usageEmbed('Can\'t find the a message in this channel by that id'));
       });
   }
 }

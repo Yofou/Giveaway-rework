@@ -108,14 +108,14 @@ class Gpost extends BaseCommand {
     }
 
     // set a range of 0 - 2 months for the time
-    if (time <= 0) return message.channel.send(this.usageEmbed('Time argument cant be 0 or smaller'));
+    if (time <= 0) return message.channel.send(this.usageEmbed('Time argument can\'t be 0 or smaller'));
     if (time >= 5184000000) return message.channel.send(this.usageEmbed('What is even the point cunt...').setImage('https://i.imgur.com/DWrI2JY.gif'));
 
     // set a range of 0 - what ever number you can think of
     if (isNaN(Number(winners))) return message.channel.send(this.usageEmbed(`${winners} is not a number`));
     winners = Number(winners);
-    if (winners <= 0) return message.channel.send(this.usageEmbed('Winner argument cant be 0 or smaller'));
-    if (winners > message.guild.memberCount) return message.channel.send(this.usageEmbed('Winner argument cant be more than the guilds member count'));
+    if (winners <= 0) return message.channel.send(this.usageEmbed('Winner argument can\'t be 0 or smaller'));
+    if (winners > message.guild.memberCount) return message.channel.send(this.usageEmbed('Winner argument can\'t be more than the guilds member count'));
 
     // structure the giveaway object
     const giveawayObj = {

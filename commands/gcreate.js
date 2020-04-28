@@ -89,8 +89,8 @@ class Gcreate extends BaseCommand {
           time = milli;
         }
 
-        if (time <= 0) { message.channel.send('Giveaway duration cant be 0 or smaller, try again'); return false; }
-        if (time >= 5184000000) { message.channel.send('Giveaway duration cant be larger than 2 months sorry, try again'); return false; }
+        if (time <= 0) { message.channel.send('Giveaway duration can\'t be 0 or smaller, try again'); return false; }
+        if (time >= 5184000000) { message.channel.send('Giveaway duration can\'t be larger than 2 months sorry, try again'); return false; }
 
         return true;
       }],
@@ -98,7 +98,7 @@ class Gcreate extends BaseCommand {
         answer = Number(answer);
         if (isNaN(answer)) { message.channel.send(`**${answer}** is not a number, try again`); return false; }
         if (answer < 1) { message.channel.send(`**${answer}** is too small you fool, try again`); return false; }
-        if (answer > message.guild.memberCount) { message.channel.send('Winner argument cant be more than the guilds member count, try again'); return false; }
+        if (answer > message.guild.memberCount) { message.channel.send('Winner argument can\'t be more than the guilds member count, try again'); return false; }
         return true;
       }],
       ['What about the title?', (answer) => {
@@ -111,7 +111,7 @@ class Gcreate extends BaseCommand {
 
         if (!isNaN(Number(answer))) {
           const tag = message.channel.members.get(answer);
-          if (!tag) { message.channel.send(`Cant find the channel by the id of **${answer}**, try again`); return false; }
+          if (!tag) { message.channel.send(`Can\'t find the channel by the id of **${answer}**, try again`); return false; }
         }
 
         return true;

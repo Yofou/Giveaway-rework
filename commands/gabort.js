@@ -62,7 +62,7 @@ class Gabort extends BaseCommand {
         msgChannel.channel.send('😢 Giveaway Aborted 😢');
       })
       .catch(e => {
-        message.channel.send(this.usageEmbed('Cant find the a message in this channel by that id'));
+        message.channel.send(this.usageEmbed('Can\'t find the a message in this channel by that id'));
       });
   }
 }

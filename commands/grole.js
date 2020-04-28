@@ -79,7 +79,7 @@ class Grole extends BaseCommand {
         } else if (roles.find(role => role.name == roleID)) {
           role = roles.find(role => role.name == roleID);
         } else {
-          return message.channel.send(await this.usageEmbed(`Sorry cant find the role of ${roleArg}`));
+          return message.channel.send(await this.usageEmbed(`Sorry can\'t find the role of ${roleArg}`));
         }
 
         const rolesDB = require('../utils/databases/roles.json');
