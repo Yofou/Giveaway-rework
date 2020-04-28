@@ -72,9 +72,8 @@ class Gignore extends BaseCommand {
           channels = channels.map(channel => channel.id);
           ignored.channels = [...new Set(ignored.channels.concat(channels))]; // filter unique ids
 
-          message.channel.send(
-            `Will now restrict from posting giveaways in ${mentions} (except for this channel)`
-          );
+          message.channel.send(`Will now restrict from posting giveaways in ${mentions} (except for this channel)`)
+            .catch(err => console.error);
         }
         break;
       case 'clear':
@@ -88,7 +87,8 @@ class Gignore extends BaseCommand {
             channelID => !allChannels.includes(channelID)
           );
 
-          message.channel.send('all channels can be used for giveaways!');
+          message.channel.send('all channels can be used for giveaways!')
+            .catch(err => console.error);
         }
         break;
       case 'list':
@@ -112,7 +112,8 @@ class Gignore extends BaseCommand {
               .every(channel => channel.viewable)
           ) { mentions += ' and all private channels'; }
 
-          message.channel.send(`Restricted channels: ${mentions}`);
+          message.channel.send(`Restricted channels: ${mentions}`)
+            .catch(err => console.error);
         }
         break;
 
@@ -139,10 +140,12 @@ class Gignore extends BaseCommand {
               channel => channel != channelID
             );
 
-            message.channel.send(`Removed <#${channelID}> from giveaway restrictions!`);
+            message.channel.send(`Removed <#${channelID}> from giveaway restrictions!`)
+              .catch(err => console.error);
           } else {
             ignored.channels.push(channelID);
-            message.channel.send(`Will now restrict from posting giveaways in <#${channelID}>`);
+            message.channel.send(`Will now restrict from posting giveaways in <#${channelID}>`)
+              .catch(err => console.error);
           }
         }
         break;

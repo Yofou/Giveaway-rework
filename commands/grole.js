@@ -97,7 +97,8 @@ class Grole extends BaseCommand {
 
         if (rolesDB[message.guild.id].length == 0) delete rolesDB[message.guild.id];
 
-        message.channel.send(response);
+        message.channel.send(response)
+          .catch(err => console.error);
         this.saveJsonFile('./utils/databases/roles.json', JSON.stringify(rolesDB, null, 4));
       })
       .catch(async (e) => {

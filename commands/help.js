@@ -15,7 +15,8 @@ class Help extends Command {
     if (args.length > 0) {
       const command = client.commands.find(cmd => cmd.name == args[0] || cmd.allias.includes(args[0]));
       if (!command) return message.channel.send(`Sorry, I can't find the command called **${args[0]}**`);
-      return message.channel.send(await command.usageEmbed());
+      return message.channel.send(await command.usageEmbed())
+        .catch(err => console.error);
     }
 
     // Other Commands w/o Args
@@ -43,7 +44,8 @@ class Help extends Command {
         client.user.avatarURL
       );
 
-    message.channel.send(helpEmbed);
+    message.channel.send(helpEmbed)
+      .catch(err => console.error);
   }
 }
 

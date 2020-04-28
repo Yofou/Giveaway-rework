@@ -194,7 +194,6 @@ class Command {
 
     return embed;
   }
-
 }
 
 module.exports = Command;
