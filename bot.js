@@ -1,7 +1,7 @@
 const { Client, Collection, Constants, MessageEmbed } = require('discord.js');
 const fs = require('fs');
 const moment = require('moment');
-require('moment-precise-range-plugin'); // for precide difference time calcucaltion
+require('moment-precise-range-plugin'); // for precise difference time calculation
 
 apiDefault = {
   apiRequestMethod: 'sequential',
@@ -39,7 +39,7 @@ apiDefault = {
 };
 
 class Bot extends Client {
-  constructor(prefix, customOptions) {
+  constructor (prefix, customOptions) {
     // Merge options (custom will override default if given)
     const options = { ...apiDefault, ...customOptions };
     super(options);
@@ -47,13 +47,13 @@ class Bot extends Client {
     this.Constants = Constants;
   }
 
-  buildCollection() {
+  buildCollection () {
     return new Collection();
   }
 
-  setupCommand(dir) {
+  setupCommand (dir) {
     let collectionName;
-    if (typeof dir == 'object') {
+    if (typeof dir === 'object') {
       collectionName = dir[0];
       dir = dir[1];
     } else {
@@ -71,14 +71,14 @@ class Bot extends Client {
     });
   }
 
-  setupDB(collection, jsonDir) {
-    let json = require(jsonDir);
+  setupDB (collection, jsonDir) {
+    const json = require(jsonDir);
     for (const i of Object.keys(json)) {
       collection.set(i, json[i]);
     }
   }
 
-  buildCommands(dirs) {
+  buildCommands (dirs) {
     dirs.forEach(dir => {
       this.setupCommand(dir);
     });
@@ -86,115 +86,109 @@ class Bot extends Client {
     this.on('message', this.listenForCommands);
   }
 
-  buildDBs(dbCollection) {
+  buildDBs (dbCollection) {
     Object.entries(dbCollection).forEach(([collectionName, dbDir]) => {
       this[collectionName] = new Collection();
       this.setupDB(this[collectionName], dbDir);
     });
   }
 
-  giveawayEmbed(Obj){
-
-    let timeLeft = moment( Date.now() ).preciseDiff( Obj.deadline )
+  giveawayEmbed (Obj) {
+    const timeLeft = moment(Date.now()).preciseDiff(Obj.deadline);
     const embed = new MessageEmbed()
-      .setTitle( Obj.title )
+      .setTitle(Obj.title)
       .setColor('#7FB3D5')
       .setURL('https://www.VerifedGiveaway.com/')
-      .setDescription(`React with 🎉 to enter!\nTime remaining: **${ timeLeft }**\nHosted by: ${ Obj.host }`)
-      .setFooter(`${ Obj.winnerAmount } Winners | Ends at • ${ moment(Obj.deadline).format("dddd, MMMM Do YYYY") }`)
+      .setDescription(`React with 🎉 to enter!\nTime remaining: **${timeLeft}**\nHosted by: ${Obj.host}`)
+      .setFooter(`${Obj.winnerAmount} Winners | Ends at • ${moment(Obj.deadline).format('dddd, MMMM Do YYYY')}`);
 
-
-    return embed
+    return embed;
   }
 
-  finishEmbed(users,orignalEmbed,func){
-
+  finishEmbed (users, originalEmbed, func) {
     // from https://en.wikipedia.org/wiki/Fisher%E2%80%93Yates_shuffle#The_modern_algorithm
-    function shuffle(a) {
+    function shuffle (a) {
       var j, x, i;
       for (i = a.length - 1; i > 0; i--) {
-          j = Math.floor(Math.random() * (i + 1));
-          x = a[i];
-          a[i] = a[j];
-          a[j] = x;
+        j = Math.floor(Math.random() * (i + 1));
+        x = a[i];
+        a[i] = a[j];
+        a[j] = x;
       }
       return a;
     }
 
     users = users
-      .filter( user => {
+      .filter(user => {
         // filter out the bot from the list
-        if (!user.bot) return user
-      } )
-      .map(user => `<@${user.id}>`) // then remap the collection to only the things we need
+        if (!user.bot) return user;
+      })
+      .map(user => `<@${user.id}>`); // then remap the collection to only the things we need
 
-    users = shuffle( users ) // shuffle the array
-    const winnerAmount = Number( orignalEmbed.footer.text.split(' ')[0] )
-    users = users.splice( 0,winnerAmount )
+    users = shuffle(users); // shuffle the array
+    const winnerAmount = Number(originalEmbed.footer.text.split(' ')[0]);
+    users = users.splice(0, winnerAmount);
 
-    let winnerAnouncment = ''
+    let winnerAnnouncement = '';
 
-    if (users.length == 0){
-      winnerAnouncment = 'Nobody Won'
+    if (users.length == 0) {
+      winnerAnnouncement = 'Nobody Won';
     } else if (users.length > 1) {
-      winnerAnouncment = 'Winners: '
+      winnerAnnouncement = 'Winners: ';
     } else {
-      winnerAnouncment = 'Winner: '
+      winnerAnnouncement = 'Winner: ';
     }
 
-    winnerAnouncment += users.join( ' ' )
+    winnerAnnouncement += users.join(' ');
 
-    const parsedDesc =  orignalEmbed.description.split('\n')
+    const parsedDesc = originalEmbed.description.split('\n');
 
     const embed = new MessageEmbed()
-      .setTitle( orignalEmbed.title )
+      .setTitle(originalEmbed.title)
       .setColor('#7FB3D5')
       .setURL('https://www.VerifedGiveaway.com/')
-      .setDescription(`${winnerAnouncment}\n${parsedDesc[ parsedDesc.length - 1 ]}`)
-      .setFooter(orignalEmbed.footer.text)
+      .setDescription(`${winnerAnnouncement}\n${parsedDesc[parsedDesc.length - 1]}`)
+      .setFooter(originalEmbed.footer.text);
 
-    return embed
+    return embed;
   }
 
-  toWidget(string, funcObj) {
+  toWidget (string, funcObj) {
     let string2 = string;
-    let brackets = { '{': [], '}': [] };
-    for (let bracket in brackets) {
-      for (let charIndex in string) {
+    const brackets = { '{': [], '}': [] };
+    for (const bracket in brackets) {
+      for (const charIndex in string) {
         if (string[charIndex] == bracket) brackets[bracket].push(charIndex);
       }
     }
 
-    if (brackets['{'].length != brackets['}'].length)
-      return 'Parsing Error: not closing brackets properly';
+    if (brackets['{'].length != brackets['}'].length) { return 'Parsing Error: not closing brackets properly'; }
 
     for (let i = 0; i < brackets['{'].length; i++) {
-      let start = parseInt(brackets['{'][i]) + 1;
-      let end = parseInt(brackets['}'][i]);
-      let innerBrackets = string.substring(start, end);
+      const start = parseInt(brackets['{'][i]) + 1;
+      const end = parseInt(brackets['}'][i]);
+      const innerBrackets = string.substring(start, end);
 
       if (!innerBrackets.includes(':')) {
         if (
           innerBrackets in funcObj &&
-          typeof funcObj[innerBrackets] != 'function'
-        )
+          typeof funcObj[innerBrackets] !== 'function'
+        ) {
           string2 = string2.replace(
             `{${innerBrackets}}`,
             funcObj[innerBrackets]
           );
+        }
       } else {
         let [funcName, args] = innerBrackets.split(':');
 
-        if (args.split('|').includes(''))
-          return `Parse Error: too many '|' in ${innerBrackets}`;
+        if (args.split('|').includes('')) { return `Parse Error: too many '|' in ${innerBrackets}`; }
         args = args.split('|');
 
-        if (!(funcName in funcObj))
-          return `Function Error: Invalid function name ${funcName} in ${innerBrackets}`;
+        if (!(funcName in funcObj)) { return `Function Error: Invalid function name ${funcName} in ${innerBrackets}`; }
 
-        let funcValue = funcObj[funcName](args);
-        if (funcValue == undefined)
-          return `Function Error: ${funcName} has no return value`;
+        const funcValue = funcObj[funcName](args);
+        if (funcValue == undefined) { return `Function Error: ${funcName} has no return value`; }
 
         string2 = string2.replace(`{${innerBrackets}}`, funcValue);
       }
@@ -203,9 +197,9 @@ class Bot extends Client {
     return string2;
   }
 
-  async listenForCommands(message) {
+  async listenForCommands (message) {
     // Ignore dms
-    if (typeof message.channel == 'DMChannel') return;
+    if (typeof message.channel === 'DMChannel') return;
 
     // Ignore Bots
     if (message.author.bot) return;
@@ -218,11 +212,9 @@ class Bot extends Client {
 
     // Before this would sometimes error out as a cannot find guild of null, meaning message.member is null
     if (!message.member.guild.me.hasPermission('SEND_MESSAGES')) return;
-    if (!message.channel.permissionsFor(message.guild.me).has('SEND_MESSAGES'))
-      return;
+    if (!message.channel.permissionsFor(message.guild.me).has('SEND_MESSAGES')) { return; }
 
-    if (message.content.startsWith(`<@!${message.member.guild.me.id}>`))
-      return message.channel.send(`Use \`${this.prefix}help\` to get started!`);
+    if (message.content.startsWith(`<@!${message.member.guild.me.id}>`)) { return message.channel.send(`Use \`${this.prefix}help\` to get started!`); }
 
     if (message.content[0] != this.prefix) return;
 
@@ -235,7 +227,7 @@ class Bot extends Client {
 
     const cmdName = args.shift();
 
-    const command = this.commands.find(cmd => cmd.name == cmdName || cmd.allias.includes( cmdName ));
+    const command = this.commands.find(cmd => cmd.name == cmdName || cmd.allias.includes(cmdName));
 
     if (!command) return;
 
@@ -244,7 +236,7 @@ class Bot extends Client {
 
     if (command.args && !args.length) {
       if (command.usage) {
-        message.channel.send(await command.usageEmbed('',message.guild));
+        message.channel.send(await command.usageEmbed('', message.guild));
       }
       return;
     }
@@ -263,6 +255,5 @@ class Bot extends Client {
     }
   }
 }
-
 
 module.exports = Bot;

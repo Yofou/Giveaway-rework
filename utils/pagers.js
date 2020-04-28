@@ -1,5 +1,5 @@
 class Pages {
-  constructor(
+  constructor (
     message,
     pages = [],
     time = 120000,
@@ -21,7 +21,7 @@ class Pages {
       !message.member.guild.me.hasPermission('MANAGE_MESSAGES') ||
       !message.member.guild.me.hasPermission('ADD_REACTIONS')
     ) {
-      let checkPermissions = `💡 *The bot doesn't have* **MANAGE_MESSAGES** *or* **ADD_REACTIONS** *permission!*`;
+      const checkPermissions = '💡 *The bot doesn\'t have* **MANAGE_MESSAGES** *or* **ADD_REACTIONS** *permission!*';
       missingPermissions = true;
       pages[0].setDescription(checkPermissions);
     }
@@ -30,14 +30,14 @@ class Pages {
       this.msg = msg;
 
       if (missingPermissions) return;
-      if (this.pages.length > 1){
+      if (this.pages.length > 1) {
         this.addReactions();
         this.createCollector();
       }
     });
   }
 
-  displayPageNumbers() {
+  displayPageNumbers () {
     const total = this.pages.length;
     let current;
     for (let i = 0; i < total; i++) {
@@ -49,12 +49,12 @@ class Pages {
     }
   }
 
-  select(pg = 1) {
+  select (pg = 1) {
     this.page = pg;
     this.msg.edit(this.pages[pg - 1]);
   }
 
-  createCollector() {
+  createCollector () {
     const collector = this.msg.createReactionCollector(
       (reaction, user) => user.id == this.message.author.id,
       {
@@ -93,7 +93,7 @@ class Pages {
     });
   }
 
-  async addReactions() {
+  async addReactions () {
     if (this.reactions.first) this.msg.react(this.reactions.first);
     if (this.reactions.back) this.msg.react(this.reactions.back);
     if (this.reactions.next) this.msg.react(this.reactions.next);
