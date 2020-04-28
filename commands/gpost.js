@@ -95,7 +95,7 @@ class Gpost extends BaseCommand {
 
       let milli = 0;
 
-      for (var i = 0; i < time.length; i++) {
+      for (let i = 0; i < time.length; i++) {
         const item = Number(time[(time.length - 1) - i]);
         if (isNaN(item)) return message.channel.send(this.usageEmbed(`${item} is not a number`));
 

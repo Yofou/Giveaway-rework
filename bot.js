@@ -108,7 +108,7 @@ class Bot extends Client {
   finishEmbed (users, originalEmbed, func) {
     // from https://en.wikipedia.org/wiki/Fisher%E2%80%93Yates_shuffle#The_modern_algorithm
     function shuffle (a) {
-      var j, x, i;
+      let j, x, i;
       for (i = a.length - 1; i > 0; i--) {
         j = Math.floor(Math.random() * (i + 1));
         x = a[i];

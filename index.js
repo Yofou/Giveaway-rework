@@ -47,10 +47,10 @@ client.buildDBs({ config: './utils/databases/config.json' });
 client.setInterval( () => {
   let giveawayDB = require( './utils/databases/giveaway.json' );
 
-  for (msgID in giveawayDB) {
+  for (let msgID in giveawayDB) {
     const giveawayObj = giveawayDB[msgID];
 
-    channel = client.channels.cache.get(giveawayObj.channelID);
+    let channel = client.channels.cache.get(giveawayObj.channelID);
     channel.messages
     .fetch(msgID)
     .then(message => {
@@ -84,7 +84,7 @@ client.setInterval( () => {
 
   let widgets = require( './utils/databases/widget.json' );
 
-  for ( messageID in widgets) {
+  for ( let messageID in widgets) {
 
     let widget = widgets[messageID];
 

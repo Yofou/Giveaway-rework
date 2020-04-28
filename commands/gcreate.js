@@ -79,7 +79,7 @@ class Gcreate extends BaseCommand {
 
           let milli = 0;
 
-          for (var i = 0; i < answer.length; i++) {
+          for (let i = 0; i < answer.length; i++) {
             const item = Number(answer[(answer.length - 1) - i]);
             if (isNaN(item)) { message.channel.send(`**${item}** is not a number, try again`); return false; }
 
