@@ -112,7 +112,7 @@ class Gignore extends BaseCommand {
               .every(channel => channel.viewable)
           ) { mentions += ' and all private channels'; }
 
-          message.channel.send(`Restrcited channels: ${mentions}`);
+          message.channel.send(`Restricted channels: ${mentions}`);
         }
         break;
 

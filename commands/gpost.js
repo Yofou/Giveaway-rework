@@ -28,7 +28,7 @@ class Gpost extends BaseCommand {
       .addField('Parameters Help', data.join('\n\n'))
       .addField(
         'Examples',
-        `${this.prefix}post 120 -h BonerKun 2 Hen*ai-MineSweeper\n${this.prefix}post 1:30:0 20 Minecraft account\n${this.prefix}post 5:0 5 Sani Soul -c 684767524671584326\n${this.prefix}post 2:15:43 1 Yofou diginity -c 684767524671586305 -h Geotim`
+        `${this.prefix}post 120 -h BonerKun 2 Hen*ai-MineSweeper\n${this.prefix}post 1:30:0 20 Minecraft account\n${this.prefix}post 5:0 5 Sani Soul -c 684767524671584326\n${this.prefix}post 2:15:43 1 Yofou dignity -c 684767524671586305 -h Geotim`
       )
       .setTimestamp();
 
@@ -48,7 +48,7 @@ class Gpost extends BaseCommand {
       if (lowerArgs.includes('-h')) index = lowerArgs.indexOf('-h');
       if (lowerArgs.includes('-host')) index = lowerArgs.indexOf('-host');
 
-      // makes sure atleast there is an argument next to the optional arg
+      // makes sure at least there is an argument next to the optional arg
       if (index >= args.length - 1) return message.channel.send(this.usageEmbed('No argument passed into -h'));
 
       // grab and validate it
@@ -80,13 +80,13 @@ class Gpost extends BaseCommand {
     let [time, winners, ...description] = args;
     description = description.join(' '); // makes description just a string
 
-    // some basic validation to make sure they exist or is atleast usable
+    // some basic validation to make sure they exist or is at least usable
     if (!time) return message.channel.send(this.usageEmbed('Time argument wasn\'t passed in'));
     if (!winners) return message.channel.send(this.usageEmbed('Winner argument wasn\'t passed in'));
-    if (description.length == 0) return message.channel.send(this.usageEmbed('Title argument wasnt passed in'));
+    if (description.length == 0) return message.channel.send(this.usageEmbed('Title argument wasn\'t passed in'));
     if (description.length >= 256) return message.channel.send(this.usageEmbed('Can\'t make the title larger than 256 characters'));
 
-    // if time argument isnt a straight up number passed in try to convert it into one
+    // if time argument isn't a straight up number passed in try to convert it into one
     if (isNaN(Number(time))) {
       // checks if
       if (!time.includes(':')) return message.channel.send(this.usageEmbed('Invalid time format'));
