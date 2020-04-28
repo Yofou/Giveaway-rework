@@ -2,7 +2,7 @@ const BaseCommand = require('../utils/baseCommand.js');
 const fs = require('fs');
 
 class Gignore extends BaseCommand {
-  constructor(prefix) {
+  constructor (prefix) {
     super(
       'ignore',
       'ignore [channel_(id/mention/name) | all | clear | list]',
@@ -14,7 +14,7 @@ class Gignore extends BaseCommand {
     );
   }
 
-  usageEmbed(error = '') {
+  usageEmbed (error = '') {
     const data = [];
     data.push('**channel_id:** 18 digits (turn on developer mode to see them)');
     data.push('**channel_mention:** example - #general');
@@ -37,14 +37,15 @@ class Gignore extends BaseCommand {
     return embed;
   }
 
-  async run(client, message, args) {
+  async run (client, message, args) {
     // some perm checking
-    if (!message.member.hasPermission('ADMINISTRATOR'))
+    if (!message.member.hasPermission('ADMINISTRATOR')) {
       return message.reply(
-        this.usageEmbed(`Sorry but you don't have the **ADMINISTRATOR** permission!`)
+        this.usageEmbed('Sorry but you don\'t have the **ADMINISTRATOR** permission!')
       );
+    }
 
-    let ignored = require('../utils/databases/ignore.json');
+    const ignored = require('../utils/databases/ignore.json');
     let channelID = args[0];
 
     // initialize list if needed (never set before)
@@ -66,8 +67,7 @@ class Gignore extends BaseCommand {
             .join(', ');
 
           // if not all channels are viewable add in some extra details
-          if (!channels.every(channel => channel.viewable))
-            mentions += ' and all private channels';
+          if (!channels.every(channel => channel.viewable)) { mentions += ' and all private channels'; }
 
           channels = channels.map(channel => channel.id);
           ignored.channels = [...new Set(ignored.channels.concat(channels))]; // filter unique ids
@@ -79,7 +79,7 @@ class Gignore extends BaseCommand {
         break;
       case 'clear':
         {
-          let allChannels = message.guild.channels.cache.map(
+          const allChannels = message.guild.channels.cache.map(
             channel => channel.id
           );
 
@@ -93,7 +93,7 @@ class Gignore extends BaseCommand {
         break;
       case 'list':
         {
-          let channelsIgnored = message.guild.channels.cache.filter(
+          const channelsIgnored = message.guild.channels.cache.filter(
             channel => ignored.channels.includes(channel.id) && channel.viewable
           );
 
@@ -110,10 +110,9 @@ class Gignore extends BaseCommand {
             !message.guild.channels.cache
               .filter(channel => ignored.channels.includes(channel.id))
               .every(channel => channel.viewable)
-          )
-            mentions += ' and all private channels';
+          ) { mentions += ' and all private channels'; }
 
-          message.channel.send(`Restrcited channels: ${mentions}`);
+          message.channel.send(`Restricted channels: ${mentions}`);
         }
         break;
 
@@ -123,14 +122,15 @@ class Gignore extends BaseCommand {
           // if (channelID.length != 18)
           //   return message.channel.send(this.usageEmbed('Invalid channel ID - should be 18 digits'));
 
-          let channel = this.getChannelFromMention(
+          const channel = this.getChannelFromMention(
             message.guild.channels.cache,
             channelID
           );
-          if (!channel)
+          if (!channel) {
             return message.channel.send(
               this.usageEmbed(`Can't find the channel by \`${channelID}\``)
             );
+          }
           channelID = channel.id;
 
           // remove or add to list

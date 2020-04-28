@@ -1,19 +1,19 @@
 const BaseCommand = require('../utils/baseCommand.js');
 
 class Grole extends BaseCommand {
-  constructor(prefix) {
-    super('role', `role [role ID/role mention/role name]`, 'Toggle on/off roles to overide permission to do giveaway commands', {
+  constructor (prefix) {
+    super('role', 'role [role ID/role mention/role name]', 'Toggle on/off roles to override permission to do giveaway commands', {
       prefix: prefix
     });
     this.allias = [
       'roles',
       'grole',
       'groles'
-    ]
-    this.usage += `\nAlias: ${ this.allias.join(',') }`
+    ];
+    this.usage += `\nAlias: ${this.allias.join(',')}`;
   }
 
-  async usageEmbed(error = '',guild){
+  async usageEmbed (error = '', guild) {
     const data = [
       'role (ID/Mention/Name): a role that you want to have permission to use the giveaway commands'
     ];
@@ -32,24 +32,23 @@ class Grole extends BaseCommand {
       )
       .setTimestamp();
 
-    if (!guild) return embed
+    if (!guild) return embed;
 
-    const rolesDB = await this.getSafeRoleDB( guild ).then( rolesDB => rolesDB )
+    const rolesDB = await this.getSafeRoleDB(guild).then(rolesDB => rolesDB);
 
-      if (rolesDB){
-        let responce = [];
-        for (let roleID of rolesDB[guild.id]){
-          responce.push( `<@&${roleID}>` )
-        }
-
-        if (responce.length > 0) embed.addField('Giveaway Roles',responce.join(','))
+    if (rolesDB) {
+      const response = [];
+      for (const roleID of rolesDB[guild.id]) {
+        response.push(`<@&${roleID}>`);
       }
 
+      if (response.length > 0) embed.addField('Giveaway Roles', response.join(','));
+    }
 
-    return embed
+    return embed;
   }
 
-  getIDFromMention(mention) {
+  getIDFromMention (mention) {
   	if (!mention) return;
 
   	if (mention.startsWith('<@') && mention.endsWith('>')) {
@@ -60,61 +59,52 @@ class Grole extends BaseCommand {
   		}
   	}
 
-    return mention
+    return mention;
   }
 
-  async run(client, message, args){
+  async run (client, message, args) {
+    if (!message.member.hasPermission('MANAGE_GUILD')) return message.channel.send('Sorry but you dont have the permissions to do this command :(');
 
-    if (!message.member.hasPermission('MANAGE_GUILD')) return message.channel.send( 'Sorry but you dont have the permissions to do this command :(' )
-
-    let [roleArg] = args
-    const roleID = this.getIDFromMention( roleArg )
+    const [roleArg] = args;
+    const roleID = this.getIDFromMention(roleArg);
 
     message.guild.roles
-    .fetch()
-    .then( async (roles) => {
+      .fetch()
+      .then(async (roles) => {
+        roles = roles.cache;
+        let role;
 
-      roles = roles.cache
-      let role;
+        if (roles.get(roleID)) {
+          role = roles.get(roleID);
+        } else if (roles.find(role => role.name == roleID)) {
+          role = roles.find(role => role.name == roleID);
+        } else {
+          return message.channel.send(await this.usageEmbed(`Sorry cant find the role of ${roleArg}`));
+        }
 
-      if ( roles.get( roleID ) ){
-        role = roles.get( roleID )
-      } else if (roles.find( role => role.name == roleID )) {
-        role = roles.find( role => role.name == roleID )
-      } else {
-        return message.channel.send( await this.usageEmbed(`Sorry cant find the role of ${roleArg}`) )
-      }
+        const rolesDB = require('../utils/databases/roles.json');
 
-      let rolesDB = require( '../utils/databases/roles.json' )
+        if (!rolesDB[message.guild.id]) rolesDB[message.guild.id] = [];
 
-      if (!rolesDB[message.guild.id]) rolesDB[message.guild.id] = []
+        let response;
+        if (rolesDB[message.guild.id].includes(role.id)) {
+          rolesDB[message.guild.id] = rolesDB[message.guild.id].filter(id => id != role.id);
+          response = `Removed <@&${role.id}> from the roster`;
+        } else {
+          rolesDB[message.guild.id].push(role.id);
+          response = `Added <@&${role.id}> from the roster`;
+        }
 
-      let responce;
-      if (rolesDB[message.guild.id].includes( role.id )){
-        rolesDB[message.guild.id] = rolesDB[message.guild.id].filter( id => id != role.id )
-        responce = `Removed <@&${role.id}> from the roster`
-      } else {
-        rolesDB[message.guild.id].push( role.id )
-        responce = `Added <@&${role.id}> from the roster`
-      }
+        if (rolesDB[message.guild.id].length == 0) delete rolesDB[message.guild.id];
 
-      if (rolesDB[message.guild.id].length == 0) delete rolesDB[message.guild.id]
-
-      message.channel.send( responce )
-      this.saveJsonFile( './utils/databases/roles.json', JSON.stringify( rolesDB,null,4 ) )
-
-
-    } )
-    .catch( async (e) => {
-
-      console.log( e )
-      return message.channel.send( await this.usageEmbed( 'Uh oh unexpected error please contact Yofou#0420' ) )
-
-    });
-
+        message.channel.send(response);
+        this.saveJsonFile('./utils/databases/roles.json', JSON.stringify(rolesDB, null, 4));
+      })
+      .catch(async (e) => {
+        console.log(e);
+        return message.channel.send(await this.usageEmbed('Uh oh unexpected error please contact Yofou#0420'));
+      });
   }
-
 }
 
-
-module.exports = Grole
+module.exports = Grole;
