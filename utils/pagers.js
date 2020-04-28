@@ -31,7 +31,7 @@ class Pages {
 
       if (missingPermissions) return;
       if (this.pages.length > 1) {
-        this.addReactions();
+        this.addReactions().catch(err => console.error(err));
         this.createCollector();
       }
     });
@@ -51,7 +51,8 @@ class Pages {
 
   select (pg = 1) {
     this.page = pg;
-    this.msg.edit(this.pages[pg - 1]);
+    this.msg.edit(this.pages[pg - 1])
+      .catch(err => console.error(err));
   }
 
   createCollector () {
@@ -83,7 +84,8 @@ class Pages {
           break;
       }
 
-      reaction.users.remove(this.message.author.id);
+      reaction.users.remove(this.message.author.id)
+        .catch(err => console.error(err));
     });
 
     collector.on('end', () => {

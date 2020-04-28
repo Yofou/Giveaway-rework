@@ -36,7 +36,8 @@ client.on('ready', () => {
     });
 
     console.log(`Logged in as ${client.user.tag}!`);
-    client.user.setActivity(`for ${client.prefix}help`, { type: 'WATCHING' });
+    client.user.setActivity(`for ${client.prefix}help`, { type: 'WATCHING' })
+      .catch(err => console.error(err));
   } )
 });
 
@@ -62,7 +63,8 @@ client.setInterval( () => {
         .fetch()
         .then( (users) => {
           const embed = client.finishEmbed( users,originalEmbed );
-          message.edit( embed );
+          message.edit( embed )
+            .catch(err => console.error(err));
           delete giveawayDB[ message.id ];
           fs.writeFile('./utils/databases/giveaway.json', JSON.stringify( giveawayDB, null, 4 ) , 'utf8', function(err) {
             if (err) {
@@ -72,9 +74,11 @@ client.setInterval( () => {
           });
 
           message.channel.send( embed.description + `\n${msgUrl}` )
+            .catch(err => console.error(err));
         } )
       } else {
         message.edit( client.giveawayEmbed(giveawayObj) )
+          .catch(err => console.error(err));
       }
     })
   }
@@ -123,6 +127,7 @@ client.setInterval( () => {
           embed.description = `${channel.toString()}\n${client.toWidget( widget.rawArgs,tagFunctions )}`;
 
           message.edit( embed )
+            .catch(err => console.error(err))
         })
         .catch( err => {
           if (err.code == 10008) delete widgets[messageID]
@@ -138,4 +143,5 @@ client.setInterval( () => {
 
 }, 10000 );
 
-client.login(client.config.get('token'));
+client.login(client.config.get('token'))
+  .catch(err => console.error(err));

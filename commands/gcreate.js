@@ -15,7 +15,8 @@ class Gcreate extends BaseCommand {
   askQuestions (message, questions, answers, index = 0, retry = 1) {
     // If all questions have been answer stop the recursive loop and start processing all the answers into >post command
     if (index == questions.length) {
-      message.channel.send('🎉 Giveaway Created 🎉');
+      message.channel.send('🎉 Giveaway Created 🎉')
+        .catch(err => console.error(err));
       return message.client.commands.find(cmd => cmd.name == 'post').run(message.client, message, answers);
     }
 
@@ -42,7 +43,8 @@ class Gcreate extends BaseCommand {
             this.askQuestions(message, questions, answers, index + 1);
           } else if (retry == 3) {
             // If to many tries give up listening
-            message.channel.send('Too many attempts');
+            message.channel.send('Too many attempts')
+              .catch(err => console.error(err));
           } else {
             // if answer failed the validation phase then add one to the retry counter
             this.askQuestions(message, questions, answers, index, retry + 1);
@@ -50,7 +52,8 @@ class Gcreate extends BaseCommand {
     		})
     		.catch(collected => {
           console.log(collected);
-          message.channel.send('you took to long to respond :(');
+          message.channel.send('you took to long to respond :(')
+            .catch(err => console.error(err));
     		});
     });
   }
