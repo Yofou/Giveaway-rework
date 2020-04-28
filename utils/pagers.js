@@ -94,11 +94,11 @@ class Pages {
   }
 
   async addReactions () {
-    if (this.reactions.first) this.msg.react(this.reactions.first).catch(err => console.error);
-    if (this.reactions.back) this.msg.react(this.reactions.back).catch(err => console.error);
-    if (this.reactions.next) this.msg.react(this.reactions.next).catch(err => console.error);
-    if (this.reactions.last) this.msg.react(this.reactions.last).catch(err => console.error);
-    if (this.reactions.stop) this.msg.react(this.reactions.stop).catch(err => console.error);
+    if (this.reactions.first) this.msg.react(this.reactions.first).catch(err => console.error(err));
+    if (this.reactions.back) this.msg.react(this.reactions.back).catch(err => console.error(err));
+    if (this.reactions.next) this.msg.react(this.reactions.next).catch(err => console.error(err));
+    if (this.reactions.last) this.msg.react(this.reactions.last).catch(err => console.error(err));
+    if (this.reactions.stop) this.msg.react(this.reactions.stop).catch(err => console.error(err));
   }
 }
 

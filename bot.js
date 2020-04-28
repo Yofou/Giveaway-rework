@@ -237,7 +237,7 @@ class Bot extends Client {
     if (command.args && !args.length) {
       if (command.usage) {
         message.channel.send(await command.usageEmbed('', message.guild))
-          .catch(err => console.error);
+          .catch(err => console.error(err));
       }
       return;
     }

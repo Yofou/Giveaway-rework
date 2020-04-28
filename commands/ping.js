@@ -10,7 +10,7 @@ class Ping extends BaseCommand {
 
   async run (client, message, args) {
     message.channel.send('Pong!')
-      .catch(err => console.error);
+      .catch(err => console.error(err));
   }
 }
 
