@@ -7,7 +7,7 @@ if (!fs.existsSync(`${__dirname}/utils/databases`)){
     fs.mkdirSync(`${__dirname}/utils/databases`);
     fs.writeFile(`./utils/databases/config.json`, JSON.stringify( { token: "place your bot token here", OWNER : "place the bot owner discord id here" }, null, 4 ) , 'utf8', function(err) {
       if (err) {
-        console.log('An error occured while writing JSON Object to file.');
+        console.log('An error occurred while writing JSON Object to file.');
         return console.log(err);
       }
       console.log( `${__dirname}/utils/databases/config.json has been generated.` )
@@ -27,7 +27,7 @@ client.on('ready', () => {
       if ( !files.includes( item ) ) {
         fs.writeFile(`./utils/databases/${item}.json`, JSON.stringify( {}, null, 4 ) , 'utf8', function(err) {
           if (err) {
-            console.log('An error occured while writing JSON Object to file.');
+            console.log('An error occurred while writing JSON Object to file.');
             return console.log(err);
           }
           console.log( `${__dirname}/utils/databases/${item}.json has been generated.` )
@@ -56,17 +56,17 @@ client.setInterval( () => {
     .then(message => {
 
       if (Date.now() > giveawayObj.deadline) {
-        const orignalEmbed = message.embeds[0]
+        const originalEmbed = message.embeds[0]
         const msgUrl = message.url
         let users = message.reactions.cache.get('🎉').users
         .fetch()
         .then( (users) => {
-          const embed = client.finishEmbed( users,orignalEmbed )
+          const embed = client.finishEmbed( users,originalEmbed )
           message.edit( embed )
           delete giveawayDB[ message.id ]
           fs.writeFile('./utils/databases/giveaway.json', JSON.stringify( giveawayDB, null, 4 ) , 'utf8', function(err) {
             if (err) {
-              console.log('An error occured while writing JSON Object to file.');
+              console.log('An error occurred while writing JSON Object to file.');
               return console.log(err);
             }
           });
@@ -131,7 +131,7 @@ client.setInterval( () => {
 
   fs.writeFile('./utils/databases/widget.json', JSON.stringify( widgets, null, 4 ) , 'utf8', function(err) {
     if (err) {
-      console.log('An error occured while writing JSON Object to file.');
+      console.log('An error occurred while writing JSON Object to file.');
       return console.log(err);
     }
   });

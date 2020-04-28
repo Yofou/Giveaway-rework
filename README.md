@@ -1,11 +1,11 @@
 # Giveaway Bot
 
-Giveawaybot is a chatbot designed for a private discord server called Lethal Mob (I know very intimidating). here are some example
+Giveawaybot is a chat bot designed for a private discord server called Lethal Mob (I know very intimidating). here are some example
 
 >abort - Aborts a giveaway so no winner will be picked\
 >post - Posts a giveaway\
 >create - An interactive setup alternative of post\
->end - Ends/Rerolls a giveaway ahead of time\
+>end - Ends/Reroll a giveaway ahead of time\
 >find - Shows all the Giveaway in a guild\
 >ignore - Toggle on/off for GiveawayBot ignore a channel('s)\
 >post - Posts a giveaway\
