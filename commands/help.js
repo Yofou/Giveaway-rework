@@ -32,7 +32,7 @@ class Help extends Command {
     data = [];
     data.push('_:bulb: Using a command w/o parameters gets extended help_');
     data.push('[parameter] - Mandatory parameter');
-    data.push('(parameter) - Optional paramater');
+    data.push('(parameter) - Optional parameter');
     helpEmbed.addField('Syntax', data.join('\n'));
 
     // Additional

@@ -2,7 +2,7 @@ const BaseCommand = require('../utils/baseCommand.js');
 
 class Grole extends BaseCommand {
   constructor (prefix) {
-    super('role', 'role [role ID/role mention/role name]', 'Toggle on/off roles to overide permission to do giveaway commands', {
+    super('role', 'role [role ID/role mention/role name]', 'Toggle on/off roles to override permission to do giveaway commands', {
       prefix: prefix
     });
     this.allias = [
@@ -37,12 +37,12 @@ class Grole extends BaseCommand {
     const rolesDB = await this.getSafeRoleDB(guild).then(rolesDB => rolesDB);
 
     if (rolesDB) {
-      const responce = [];
+      const response = [];
       for (const roleID of rolesDB[guild.id]) {
-        responce.push(`<@&${roleID}>`);
+        response.push(`<@&${roleID}>`);
       }
 
-      if (responce.length > 0) embed.addField('Giveaway Roles', responce.join(','));
+      if (response.length > 0) embed.addField('Giveaway Roles', response.join(','));
     }
 
     return embed;
@@ -86,18 +86,18 @@ class Grole extends BaseCommand {
 
         if (!rolesDB[message.guild.id]) rolesDB[message.guild.id] = [];
 
-        let responce;
+        let response;
         if (rolesDB[message.guild.id].includes(role.id)) {
           rolesDB[message.guild.id] = rolesDB[message.guild.id].filter(id => id != role.id);
-          responce = `Removed <@&${role.id}> from the roster`;
+          response = `Removed <@&${role.id}> from the roster`;
         } else {
           rolesDB[message.guild.id].push(role.id);
-          responce = `Added <@&${role.id}> from the roster`;
+          response = `Added <@&${role.id}> from the roster`;
         }
 
         if (rolesDB[message.guild.id].length == 0) delete rolesDB[message.guild.id];
 
-        message.channel.send(responce);
+        message.channel.send(response);
         this.saveJsonFile('./utils/databases/roles.json', JSON.stringify(rolesDB, null, 4));
       })
       .catch(async (e) => {
