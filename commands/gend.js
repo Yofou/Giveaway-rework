@@ -2,7 +2,7 @@ const BaseCommand = require('../utils/baseCommand.js');
 
 class Gend extends BaseCommand {
   constructor (prefix) {
-    super('end', 'end [messageID]', 'Ends/Rerolls a giveaway ahead of time', {
+    super('end', 'end [messageID]', 'Ends/Reroll a giveaway ahead of time', {
       prefix: prefix
     });
     this.allias = ['roll', 'groll', 'gend', 'gcancel', 'cancel'];
@@ -49,15 +49,15 @@ class Gend extends BaseCommand {
     channel.messages
       .fetch(messageID)
       .then(message => {
-        const orignalEmbed = message.embeds[0];
+        const originalEmbed = message.embeds[0];
         const msgUrl = message.url;
-        if (!orignalEmbed) return msgChannel.channel.send(this.usageEmbed('Not an embed message'));
-        if (orignalEmbed.url != 'https://www.VerifedGiveaway.com/') return msgChannel.channel.send(this.usageEmbed('Invalid giveaway embed'));
+        if (!originalEmbed) return msgChannel.channel.send(this.usageEmbed('Not an embed message'));
+        if (originalEmbed.url != 'https://www.VerifedGiveaway.com/') return msgChannel.channel.send(this.usageEmbed('Invalid giveaway embed'));
 
         message.reactions.cache.get('🎉').users
           .fetch()
           .then((users) => {
-            const embed = client.finishEmbed(users, orignalEmbed);
+            const embed = client.finishEmbed(users, originalEmbed);
             message.edit(embed);
             msgChannel.react('👌');
             delete giveawayDB[messageID];
