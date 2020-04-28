@@ -1,6 +1,6 @@
 const BaseCommand = require('../utils/baseCommand.js');
 const moment = require('moment');
-require('moment-precise-range-plugin'); // for precide difference time calcucaltion
+require('moment-precise-range-plugin'); // for precise difference time calculation
 
 class Gfind extends BaseCommand {
   constructor (prefix) {
@@ -39,7 +39,7 @@ class Gfind extends BaseCommand {
     const tChunks = this.Chunk(fields, 2);
     const embeds = []; let tEmbed;
 
-    // Start to use nested arrays to iterate through the 2D chunck array we created
+    // Start to use nested arrays to iterate through the 2D chunk array we created
     for (const outer of tChunks) {
       // Start to init the embed we gonna use
       tEmbed = this.RichEmbed().setTitle(`${message.guild.name}, Giveaways`);
