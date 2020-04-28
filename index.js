@@ -20,8 +20,8 @@ const client = new Bot('>');
 client.on('ready', () => {
 
   glob( `${__dirname}/utils/databases/*.json`, (err,files) => {
-    files = files.map( file => parse( file ).name )
-    const dbs = ['giveaway','ignore','roles','widget']
+    files = files.map( file => parse( file ).name );
+    const dbs = ['giveaway','ignore','roles','widget'];
 
     dbs.forEach( item => {
       if ( !files.includes( item ) ) {
@@ -50,20 +50,20 @@ client.setInterval( () => {
   for (msgID in giveawayDB) {
     const giveawayObj = giveawayDB[msgID];
 
-    channel = client.channels.cache.get(giveawayObj.channelID)
+    channel = client.channels.cache.get(giveawayObj.channelID);
     channel.messages
     .fetch(msgID)
     .then(message => {
 
       if (Date.now() > giveawayObj.deadline) {
-        const originalEmbed = message.embeds[0]
-        const msgUrl = message.url
+        const originalEmbed = message.embeds[0];
+        const msgUrl = message.url;
         let users = message.reactions.cache.get('🎉').users
         .fetch()
         .then( (users) => {
-          const embed = client.finishEmbed( users,originalEmbed )
-          message.edit( embed )
-          delete giveawayDB[ message.id ]
+          const embed = client.finishEmbed( users,originalEmbed );
+          message.edit( embed );
+          delete giveawayDB[ message.id ];
           fs.writeFile('./utils/databases/giveaway.json', JSON.stringify( giveawayDB, null, 4 ) , 'utf8', function(err) {
             if (err) {
               console.log('An error occurred while writing JSON Object to file.');
@@ -78,19 +78,19 @@ client.setInterval( () => {
       }
     })
   }
-}, 10000 )
+}, 10000 );
 
 client.setInterval( () => {
 
-  let widgets = require( './utils/databases/widget.json' )
+  let widgets = require( './utils/databases/widget.json' );
 
   for ( messageID in widgets) {
 
-    let widget = widgets[messageID]
+    let widget = widgets[messageID];
 
-    let guild = client.guilds.cache.get( widget.guildID )
+    let guild = client.guilds.cache.get( widget.guildID );
     if (!guild) {delete widgets[messageID];continue}
-    let channel = guild.channels.cache.get( widget.channelID )
+    let channel = guild.channels.cache.get( widget.channelID );
     if (!channel) {delete widgets[messageID];continue}
     channel.messages
       .fetch(messageID)
@@ -99,8 +99,8 @@ client.setInterval( () => {
           let tagFunctions = {
             roleCount : (val) => {
               let role;
-              let counter = 0
-              val = val[0].split( ' ' )
+              let counter = 0;
+              val = val[0].split( ' ' );
 
               for (let rawRoles of val){
                 if (rawRoles.startsWith('<@&') && rawRoles.endsWith('>') ) {
@@ -117,10 +117,10 @@ client.setInterval( () => {
 
               return counter
             }
-          }
+          };
 
-          let embed = message.embeds[0]
-          embed.description = `${channel.toString()}\n${client.toWidget( widget.rawArgs,tagFunctions )}`
+          let embed = message.embeds[0];
+          embed.description = `${channel.toString()}\n${client.toWidget( widget.rawArgs,tagFunctions )}`;
 
           message.edit( embed )
         })
@@ -136,6 +136,6 @@ client.setInterval( () => {
     }
   });
 
-}, 10000 )
+}, 10000 );
 
 client.login(client.config.get('token'));

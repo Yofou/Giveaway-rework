@@ -1,2 +1,4 @@
 utils/databases
 node_modules
+.idea
+*.iml
