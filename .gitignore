@@ -2,5 +2,5 @@ databases
 node_modules
 .idea
 *.iml
-*sh
+*.sh
 config.json
