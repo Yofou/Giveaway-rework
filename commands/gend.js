@@ -42,7 +42,7 @@ class Gend extends BaseCommand {
 
     const [messageID] = args;
     if (isNaN(Number(messageID))) return message.channel.send(this.usageEmbed('Invalid message id (Not a number)'));
-    const giveawayDB = require('../utils/databases/giveaway.json');
+    const giveawayDB = require('../databases/giveaway.json');
 
     const msgChannel = message;
 
@@ -61,7 +61,7 @@ class Gend extends BaseCommand {
             message.edit(embed);
             msgChannel.react('👌');
             delete giveawayDB[messageID];
-            this.saveJsonFile('./utils/databases/giveaway.json', JSON.stringify(giveawayDB, null, 4));
+            this.saveJsonFile('./databases/giveaway.json', JSON.stringify(giveawayDB, null, 4));
 
             message.channel.send(embed.description + `\n${msgUrl}`);
           })

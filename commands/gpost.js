@@ -129,9 +129,9 @@ class Gpost extends BaseCommand {
     // send that baby out to the world :)
     channel.send(client.giveawayEmbed(giveawayObj)).then(message => {
       message.react('🎉');
-      const giveawayDB = require('../utils/databases/giveaway.json');
+      const giveawayDB = require('../databases/giveaway.json');
       giveawayDB[message.id] = giveawayObj;
-      this.saveJsonFile('./utils/databases/giveaway.json', JSON.stringify(giveawayDB, null, 4));
+      this.saveJsonFile('./databases/giveaway.json', JSON.stringify(giveawayDB, null, 4));
     });
   }
 }

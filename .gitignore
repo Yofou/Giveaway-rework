@@ -1,4 +1,6 @@
-utils/databases
+databases
 node_modules
 .idea
 *.iml
+*.sh
+config.json

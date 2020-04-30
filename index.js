@@ -3,34 +3,34 @@ const fs = require('fs');
 const glob = require('glob');
 const { parse } = require('path');
 
-if (!fs.existsSync(`${__dirname}/utils/databases`)){
-    fs.mkdirSync(`${__dirname}/utils/databases`);
-    fs.writeFile(`./utils/databases/config.json`, JSON.stringify( { token: "place your bot token here", OWNER : "place the bot owner discord id here" }, null, 4 ) , 'utf8', function(err) {
-      if (err) {
-        console.log('An error occurred while writing JSON Object to file.');
-        return console.log(err);
-      }
-      console.log( `${__dirname}/utils/databases/config.json has been generated.` )
-    });
-    return console.log( `Made ${__dirname}/utils/databases please fill out config.json in the created directory` )
+if (!fs.existsSync(`${__dirname}/config.json`)){
+  fs.writeFile(`./config.json`, JSON.stringify( { token: "place your bot token here", OWNER : "place the bot owner discord id here" }, null, 4 ) , 'utf8', function(err) {
+    if (err) {
+      console.log('An error occurred while writing JSON Object to file.');
+      return console.log(err);
+    }
+    console.log( `${__dirname}/config.json has been generated.` )
+  });
+  return console.log( `Made ${__dirname}/utils/databases\nplease fill out config.json created in the root folder` )  
 }
+
 
 const client = new Bot('>');
 
 client.on('ready', () => {
-
-  glob( `${__dirname}/utils/databases/*.json`, (err,files) => {
+  if (!fs.existsSync(`${__dirname}/databases`)) fs.mkdirSync(`${__dirname}/databases`);
+  glob( `${__dirname}/databases/*.json`, (err,files) => {
     files = files.map( file => parse( file ).name );
     const dbs = ['giveaway','ignore','roles','widget'];
 
     dbs.forEach( item => {
       if ( !files.includes( item ) ) {
-        fs.writeFile(`./utils/databases/${item}.json`, JSON.stringify( {}, null, 4 ) , 'utf8', function(err) {
+        fs.writeFile(`./databases/${item}.json`, JSON.stringify( {}, null, 4 ) , 'utf8', function(err) {
           if (err) {
             console.log('An error occurred while writing JSON Object to file.');
             return console.log(err);
           }
-          console.log( `${__dirname}/utils/databases/${item}.json has been generated.` )
+          console.log( `${__dirname}/databases/${item}.json has been generated.` )
         });
       }
     });
@@ -43,10 +43,10 @@ client.on('ready', () => {
 
 client.buildCommands([['commands', './commands/']]);
 
-client.buildDBs({ config: './utils/databases/config.json' });
+client.buildDBs({ config: './config.json' });
 
 client.setInterval( () => {
-  let giveawayDB = require( './utils/databases/giveaway.json' );
+  let giveawayDB = require( './databases/giveaway.json' );
 
   for (let msgID in giveawayDB) {
     const giveawayObj = giveawayDB[msgID];
@@ -66,7 +66,7 @@ client.setInterval( () => {
           message.edit( embed )
             .catch(err => console.error(err));
           delete giveawayDB[ message.id ];
-          fs.writeFile('./utils/databases/giveaway.json', JSON.stringify( giveawayDB, null, 4 ) , 'utf8', function(err) {
+          fs.writeFile('./databases/giveaway.json', JSON.stringify( giveawayDB, null, 4 ) , 'utf8', function(err) {
             if (err) {
               console.log('An error occurred while writing JSON Object to file.');
               return console.log(err);
@@ -86,7 +86,7 @@ client.setInterval( () => {
 
 client.setInterval( () => {
 
-  let widgets = require( './utils/databases/widget.json' );
+  let widgets = require( './databases/widget.json' );
 
   for ( let messageID in widgets) {
 
@@ -134,7 +134,7 @@ client.setInterval( () => {
         } )
   }
 
-  fs.writeFile('./utils/databases/widget.json', JSON.stringify( widgets, null, 4 ) , 'utf8', function(err) {
+  fs.writeFile('./databases/widget.json', JSON.stringify( widgets, null, 4 ) , 'utf8', function(err) {
     if (err) {
       console.log('An error occurred while writing JSON Object to file.');
       return console.log(err);

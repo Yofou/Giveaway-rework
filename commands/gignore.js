@@ -45,7 +45,7 @@ class Gignore extends BaseCommand {
       );
     }
 
-    const ignored = require('../utils/databases/ignore.json');
+    const ignored = require('../databases/ignore.json');
     let channelID = args[0];
 
     // initialize list if needed (never set before)
@@ -153,7 +153,7 @@ class Gignore extends BaseCommand {
 
     // write the data to the file
     this.saveJsonFile(
-      './utils/databases/ignore.json',
+      './databases/ignore.json',
       JSON.stringify(ignored, null, 4)
     );
   }

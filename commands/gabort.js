@@ -40,7 +40,7 @@ class Gabort extends BaseCommand {
 
     const [messageID] = args;
     if (isNaN(Number(messageID))) return message.channel.send(this.usageEmbed('Invalid message id (Not a number)'));
-    const giveawayDB = require('../utils/databases/giveaway.json');
+    const giveawayDB = require('../databases/giveaway.json');
 
     const msgChannel = message;
 
@@ -58,7 +58,7 @@ class Gabort extends BaseCommand {
         message.edit(embed);
         message.reactions.removeAll().catch(error => console.error('Failed to clear reactions: ', error));
         delete giveawayDB[messageID];
-        this.saveJsonFile('./utils/databases/giveaway.json', JSON.stringify(giveawayDB, null, 4));
+        this.saveJsonFile('./databases/giveaway.json', JSON.stringify(giveawayDB, null, 4));
         msgChannel.channel.send('😢 Giveaway Aborted 😢');
       })
       .catch(e => {

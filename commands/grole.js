@@ -82,7 +82,7 @@ class Grole extends BaseCommand {
           return message.channel.send(await this.usageEmbed(`Sorry can\'t find the role of ${roleArg}`));
         }
 
-        const rolesDB = require('../utils/databases/roles.json');
+        const rolesDB = require('../databases/roles.json');
 
         if (!rolesDB[message.guild.id]) rolesDB[message.guild.id] = [];
 
@@ -99,7 +99,7 @@ class Grole extends BaseCommand {
 
         message.channel.send(response)
           .catch(err => console.error(err));
-        this.saveJsonFile('./utils/databases/roles.json', JSON.stringify(rolesDB, null, 4));
+        this.saveJsonFile('./databases/roles.json', JSON.stringify(rolesDB, null, 4));
       })
       .catch(async (e) => {
         console.log(e);
