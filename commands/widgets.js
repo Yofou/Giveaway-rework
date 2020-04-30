@@ -79,7 +79,7 @@ class Widgets extends BaseCommand {
       .then(msg => {
         message.delete();
 
-        const widget = require('../utils/databases/widget.json');
+        const widget = require('../databases/widget.json');
 
         widget[msg.id] = {
           channelID: channel.id,
@@ -87,7 +87,7 @@ class Widgets extends BaseCommand {
           rawArgs: args.join(' ')
         };
 
-        this.saveJsonFile('./utils/databases/widget.json', JSON.stringify(widget, null, 4));
+        this.saveJsonFile('./databases/widget.json', JSON.stringify(widget, null, 4));
       });
   }
 }

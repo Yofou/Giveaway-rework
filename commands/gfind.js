@@ -25,7 +25,7 @@ class Gfind extends BaseCommand {
   }
 
   async run (client, message, args) {
-    const Giveaways = require('../utils/databases/giveaway.json');
+    const Giveaways = require('../databases/giveaway.json');
     const fields = []; // We will push giveaway objects in here if valid
 
     for (const GiveawayID in Giveaways) {

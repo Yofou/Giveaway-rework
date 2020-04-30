@@ -74,7 +74,7 @@ class Command {
         if (!channel) { responseObj.error = `Sorry But I can\'t find any channel via ID by ${channelInput}`; return responseObj; }
       }
 
-      const ignored = require('../utils/databases/ignore.json');
+      const ignored = require('../databases/ignore.json');
       if (ignored.channels) {
         if (ignored.channels.includes(channel.id)) {
           responseObj.error = 'Sorry but I can\'t post Giveaways in that channel (Channel is restricted by admins)'; return responseObj;
@@ -126,7 +126,7 @@ class Command {
   checkGiveawayPerms (message) {
     let userpass = false;
     // check if the user has permission or an override role to use this command
-    const rolesDB = require('./databases/roles.json');
+    const rolesDB = require('../databases/roles.json');
     if (rolesDB[message.guild.id]) {
       for (const roleID of rolesDB[message.guild.id]) {
         if (message.member.roles.cache.has(roleID)) userpass = true; break;
@@ -137,7 +137,7 @@ class Command {
   }
 
   async getSafeRoleDB (guild) {
-    const rolesDB = require('./databases/roles.json');
+    const rolesDB = require('../databases/roles.json');
     const filter = [];
 
     if (!rolesDB[guild.id]) return false;
@@ -153,7 +153,7 @@ class Command {
 
         if (rolesDB[guild.id].length == 0) delete rolesDB[guild.id];
 
-        this.saveJsonFile('./utils/databases/roles.json', JSON.stringify(rolesDB, null, 4));
+        this.saveJsonFile('./databases/roles.json', JSON.stringify(rolesDB, null, 4));
 
         return rolesDB;
       });
