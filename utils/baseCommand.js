@@ -79,7 +79,7 @@ class Command {
         if (ignored.channels.includes(channel.id)) {
           responseObj.error = 'Sorry but I can\'t post Giveaways in that channel (Channel is restricted by admins)'; return responseObj;
         }
-      } else if ( !channel.permissionsFor(message.guild.me).has(['VIEW_CHANNEL','SEND_MESSAGES']) ) {
+      } else if (!channel.permissionsFor(message.guild.me).has(['VIEW_CHANNEL', 'SEND_MESSAGES'])) {
         responseObj.error = 'Sorry but I don\'t have permission to view or send messages too that channel'; return responseObj;
       } else if (!channel.permissionsFor(message.member).has(['VIEW_CHANNEL'])) {
         responseObj.error = 'Sorry but you don\'t have permission to view that channel'; return responseObj;
