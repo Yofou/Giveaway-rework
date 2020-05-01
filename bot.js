@@ -39,11 +39,10 @@ apiDefault = {
 };
 
 class Bot extends Client {
-  constructor (prefix, customOptions) {
+  constructor (customOptions) {
     // Merge options (custom will override default if given)
     const options = { ...apiDefault, ...customOptions };
     super(options);
-    this.prefix = prefix;
     this.Constants = Constants;
   }
 

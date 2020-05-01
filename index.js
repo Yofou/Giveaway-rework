@@ -4,20 +4,25 @@ const glob = require('glob');
 const { parse } = require('path');
 
 if (!fs.existsSync(`${__dirname}/config.json`)){
-  fs.writeFile(`./config.json`, JSON.stringify( { token: "place your bot token here", OWNER : "place the bot owner discord id here" }, null, 4 ) , 'utf8', function(err) {
+  fs.writeFile(`./config.json`, JSON.stringify( { token: "place your bot token here", OWNER : "place the bot owner discord id here", prefix: "place your desired prefix here" }, null, 4 ) , 'utf8', function(err) {
     if (err) {
       console.log('An error occurred while writing JSON Object to file.');
       return console.log(err);
     }
     console.log( `${__dirname}/config.json has been generated.` )
   });
-  return console.log( `Made ${__dirname}/utils/databases\nplease fill out config.json created in the root folder` )  
+  return console.log( `Made ${__dirname}/databases\nplease fill out config.json created in the root folder` )
 }
 
 
-const client = new Bot('>');
+const client = new Bot();
+
+client.buildDBs({ config: './config.json' });
 
 client.on('ready', () => {
+  client.prefix = client.config.get( 'prefix' )
+  client.buildCommands([['commands', './commands/']]);
+
   if (!fs.existsSync(`${__dirname}/databases`)) fs.mkdirSync(`${__dirname}/databases`);
   glob( `${__dirname}/databases/*.json`, (err,files) => {
     files = files.map( file => parse( file ).name );
@@ -40,10 +45,6 @@ client.on('ready', () => {
       .catch(err => console.error(err));
   } )
 });
-
-client.buildCommands([['commands', './commands/']]);
-
-client.buildDBs({ config: './config.json' });
 
 client.setInterval( () => {
   let giveawayDB = require( './databases/giveaway.json' );
