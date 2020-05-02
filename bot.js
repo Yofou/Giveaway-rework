@@ -222,12 +222,16 @@ class Bot extends Client {
     if (!message.member.guild.me.hasPermission('SEND_MESSAGES')) return;
     if (!message.channel.permissionsFor(message.guild.me).has('SEND_MESSAGES')) { return; }
 
-    if (message.content.startsWith(`<@!${message.member.guild.me.id}>`)) { return message.channel.send(`Use \`${this.prefix(message)}help\` to get started!`); }
-
-    if (!message.content.startsWith(this.prefix(message))) return;
+    let content;
+    if (message.content.startsWith(this.prefix(message))){
+      content = message.content.slice(this.prefix(message).length).trim();
+    } else if (message.content.startsWith( `<@!${message.member.guild.me.id}>` )) {
+      content = message.content.slice(`<@!${message.member.guild.me.id}>`.length).trim();
+    } else {
+      return;
+    }
 
     // Standard argument and command definitions
-    const content = message.content.slice(this.prefix(message).length).trim();
 
     const rawArgs = content.split(/ +/g);
 
