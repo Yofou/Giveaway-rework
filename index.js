@@ -20,13 +20,12 @@ const client = new Bot();
 client.buildDBs({ config: './config.json' });
 
 client.on('ready', () => {
-  client.prefix = client.config.get( 'prefix' )
   client.buildCommands([['commands', './commands/']]);
 
   if (!fs.existsSync(`${__dirname}/databases`)) fs.mkdirSync(`${__dirname}/databases`);
   glob( `${__dirname}/databases/*.json`, (err,files) => {
     files = files.map( file => parse( file ).name );
-    const dbs = ['giveaway','ignore','roles','widget'];
+    const dbs = ['giveaway','ignore','roles','widget','prefix'];
 
     dbs.forEach( item => {
       if ( !files.includes( item ) ) {

@@ -46,6 +46,12 @@ class Bot extends Client {
     this.Constants = Constants;
   }
 
+  get prefix(){
+    let prefix = this.config.get('prefix')
+    if (!prefix) return '>'
+    return prefix
+  }
+
   buildCollection () {
     return new Collection();
   }
