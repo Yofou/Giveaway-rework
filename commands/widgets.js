@@ -1,15 +1,13 @@
 const BaseCommand = require('../utils/baseCommand.js');
 
 class Widgets extends BaseCommand {
-  constructor (prefix) {
-    super('widget', 'widget', 'creates custom messages with widgets', {
-      prefix: prefix
-    });
+  constructor () {
+    super('widget', 'widget', 'creates custom messages with widgets');
     this.allias = ['widgets'];
     this.caseSensitiveArgs = true;
   }
 
-  usageEmbed (error = '') {
+  usageEmbed (prefix,error = '') {
     const data = [
       'roleCount: @RoleMention/<RoleID>/RoleName Also add a space to make it count more than 1 role',
       'additional arguments: -c {channelID/mention/name}'
@@ -21,11 +19,11 @@ class Widgets extends BaseCommand {
     }
 
     embed
-      .addField('Usage', this.usage)
+      .addField('Usage', `${prefix}${this.usage}`)
       .addField('Parameters Help', data.join('\n'))
       .addField(
         'Examples',
-        `${this.prefix}widget {roleCount: @Member 685107365342609418 Admin } / 500\n${this.prefix}widget -c {channelID/mention/name} {roleCount: @Member 685107365342609418 Admin } / 500`
+        `${prefix}widget {roleCount: @Member 685107365342609418 Admin } / 500\n${prefix}widget -c {channelID/mention/name} {roleCount: @Member 685107365342609418 Admin } / 500`
       )
       .setTimestamp();
 
@@ -52,7 +50,7 @@ class Widgets extends BaseCommand {
     if (!message.member.hasPermission('ADMINISTRATOR')) return message.channel.send(`Sorry <@${message.author.id}> but you don't have permission to execute this command, I know smh...`);
 
     let channel = this.channelValidation(message, args);
-    if (channel.error) return message.channel.send(this.usageEmbed(channel.error));
+    if (channel.error) return message.channel.send(this.usageEmbed(client.prefix(message),channel.error));
     args = channel.args;
     channel = channel.channel;
 
