@@ -7,7 +7,7 @@ class SetPrefix extends BaseCommand {
   }
 
   async run (client, message, args) {
-
+    if (!message.member.hasPermission('ADMINISTRATOR')) return message.channel.send('Sorry but you dont have the permissions to do this command :(');
     let prefixs = require( '../databases/prefix.json' )
     const requestedPrefix = args[0]
 
