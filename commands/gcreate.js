@@ -113,7 +113,7 @@ class Gcreate extends BaseCommand {
 
         if (!isNaN(Number(answer))) {
           const tag = message.channel.members.get(answer);
-          if (!tag) { message.channel.send(`Can\'t find the channel by the id of **${answer}**, try again`); return false; }
+          if (!tag) { message.channel.send(`Can\'t find the guild member by that id of **${answer}**, try again`); return false; }
         }
 
         return true;
