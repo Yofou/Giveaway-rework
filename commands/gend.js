@@ -1,15 +1,13 @@
 const BaseCommand = require('../utils/baseCommand.js');
 
 class Gend extends BaseCommand {
-  constructor (prefix) {
-    super('end', 'end [messageID]', 'Ends/Reroll a giveaway ahead of time', {
-      prefix: prefix
-    });
+  constructor () {
+    super('end', 'end [messageID]', 'Ends/Reroll a giveaway ahead of time');
     this.allias = ['roll', 'groll', 'gend', 'gcancel', 'cancel'];
     this.usage += `\nAlias: ${this.allias.join(',')}`;
   }
 
-  usageEmbed (error = '') {
+  usageEmbed (prefix,error = '') {
     const data = [
       'messageID: the message id of the giveaway embed',
       'additional arguments: -c {channelID/mention/name}'
@@ -21,11 +19,11 @@ class Gend extends BaseCommand {
     }
 
     embed
-      .addField('Usage', this.usage)
+      .addField('Usage', `${prefix}${this.usage}`)
       .addField('Parameters Help', data.join('\n'))
       .addField(
         'Examples',
-        `${this.prefix}end 684767524671586305 \n${this.prefix}roll 684767524671584326\n${this.prefix}end 693871103478595704 -c 638096970996776977 \n${this.prefix}roll -c 638096970996776977 693871103478595704`
+        `${prefix}end 684767524671586305 \n${prefix}roll 684767524671584326\n${prefix}end 693871103478595704 -c 638096970996776977 \n${prefix}roll -c 638096970996776977 693871103478595704`
       )
       .setTimestamp();
 
@@ -36,12 +34,12 @@ class Gend extends BaseCommand {
     if (this.checkGiveawayPerms(message)) return message.channel.send(`<@${message.author.id}> Sorry but you dont have the required role or permissions to run this command`);
 
     let channel = this.channelValidation(message, args);
-    if (channel.error) return message.channel.send(this.usageEmbed(channel.error));
+    if (channel.error) return message.channel.send(this.usageEmbed(client.prefix(message),channel.error));
     args = channel.args;
     channel = channel.channel;
 
     const [messageID] = args;
-    if (isNaN(Number(messageID))) return message.channel.send(this.usageEmbed('Invalid message id (Not a number)'));
+    if (isNaN(Number(messageID))) return message.channel.send(this.usageEmbed(client.prefix(message),'Invalid message id (Not a number)'));
     const giveawayDB = require('../databases/giveaway.json');
 
     const msgChannel = message;
@@ -51,7 +49,7 @@ class Gend extends BaseCommand {
       .then(message => {
         const originalEmbed = message.embeds[0];
         const msgUrl = message.url;
-        if (!originalEmbed) return msgChannel.channel.send(this.usageEmbed('Not an embed message'));
+        if (!originalEmbed) return msgChannel.channel.send(this.usageEmbed(client.prefix(message),'Not an embed message'));
         if (originalEmbed.url != 'https://www.VerifedGiveaway.com/') return msgChannel.channel.send(this.usageEmbed('Invalid giveaway embed'));
 
         message.reactions.cache.get('🎉').users
@@ -65,10 +63,10 @@ class Gend extends BaseCommand {
 
             message.channel.send(embed.description + `\n${msgUrl}`);
           })
-          .catch(e => message.channel.send(this.usageEmbed('Uh oh unexpected error please contact Yofou#0420')));
+          .catch(e => message.channel.send(this.usageEmbed(client.prefix(message),'Uh oh unexpected error please contact Yofou#0420')));
       })
       .catch(e => {
-        message.channel.send(this.usageEmbed('Can\'t find the a message in this channel by that id'));
+        message.channel.send(this.usageEmbed(client.prefix(message),'Can\'t find the a message in this channel by that id'));
       });
   }
 }

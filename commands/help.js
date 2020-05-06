@@ -1,10 +1,9 @@
 const Command = require('../utils/baseCommand.js');
 
 class Help extends Command {
-  constructor (prefix) {
+  constructor () {
     super('help', 'help', 'List all commands and their information', {
-      args: false,
-      prefix: prefix
+      args: false
     });
   }
 
@@ -15,7 +14,7 @@ class Help extends Command {
     if (args.length > 0) {
       const command = client.commands.find(cmd => cmd.name == args[0] || cmd.allias.includes(args[0]));
       if (!command) return message.channel.send(`Sorry, I can't find the command called **${args[0]}**`);
-      return message.channel.send(await command.usageEmbed())
+      return message.channel.send(await command.usageEmbed(client.prefix(message)))
         .catch(err => console.error(err));
     }
 
@@ -24,7 +23,7 @@ class Help extends Command {
     client.commands
       .forEach(cmd => {
         if (!cmd.category) {
-          if (!cmd.secret) { data.push(`**${this.prefix}${cmd.name}** - ${cmd.description}`); }
+          if (!cmd.secret) { data.push(`**${client.prefix(message)}${cmd.name}** - ${cmd.description}`); }
         }
       });
     helpEmbed.addField('General', data.join('\n'));

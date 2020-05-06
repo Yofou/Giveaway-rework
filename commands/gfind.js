@@ -3,9 +3,8 @@ const moment = require('moment');
 require('moment-precise-range-plugin'); // for precise difference time calculation
 
 class Gfind extends BaseCommand {
-  constructor (prefix) {
+  constructor () {
     super('find', 'find', 'Shows all the Giveaway in a guild', {
-      prefix: prefix,
       args: false
     });
     this.allias = ['gfind', 'glist', 'list'];

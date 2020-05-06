@@ -4,7 +4,7 @@ const glob = require('glob');
 const { parse } = require('path');
 
 if (!fs.existsSync(`${__dirname}/config.json`)){
-  fs.writeFile(`./config.json`, JSON.stringify( { token: "place your bot token here", OWNER : "place the bot owner discord id here", prefix: "place your desired prefix here" }, null, 4 ) , 'utf8', function(err) {
+  fs.writeFile(`./config.json`, JSON.stringify( { token: "place your bot token here", OWNER : "place the bot owner discord id here", defaultPrefix: "place your desired prefix here" }, null, 4 ) , 'utf8', function(err) {
     if (err) {
       console.log('An error occurred while writing JSON Object to file.');
       return console.log(err);
@@ -20,13 +20,12 @@ const client = new Bot();
 client.buildDBs({ config: './config.json' });
 
 client.on('ready', () => {
-  client.prefix = client.config.get( 'prefix' )
   client.buildCommands([['commands', './commands/']]);
 
   if (!fs.existsSync(`${__dirname}/databases`)) fs.mkdirSync(`${__dirname}/databases`);
   glob( `${__dirname}/databases/*.json`, (err,files) => {
     files = files.map( file => parse( file ).name );
-    const dbs = ['giveaway','ignore','roles','widget'];
+    const dbs = ['giveaway','ignore','roles','widget','prefix'];
 
     dbs.forEach( item => {
       if ( !files.includes( item ) ) {
@@ -41,7 +40,7 @@ client.on('ready', () => {
     });
 
     console.log(`Logged in as ${client.user.tag}!`);
-    client.user.setActivity(`for ${client.prefix}help`, { type: 'WATCHING' })
+    client.user.setActivity(`for ${client.prefix()}help`, { type: 'WATCHING' })
       .catch(err => console.error(err));
   } )
 });

@@ -6,22 +6,20 @@ const defaultOptions = {
   args: true,
   secret: false,
   category: false,
-  subTree: null,
-  prefix: ''
+  subTree: null
 };
 
 class Command {
-  constructor (name, usage, description, customOptions) {
+  constructor (name, usage, description, customOptions = {}) {
     // Merge options (custom will override default if given)
     const options = { ...defaultOptions, ...customOptions };
     this.name = name;
-    this.usage = `${options.prefix}${usage}`;
+    this.usage = usage;
     this.description = description;
     this.args = options.args;
     this.secret = options.secret;
     this.category = options.category;
     this.subTree = options.subTree;
-    this.prefix = options.prefix;
     this.version = version;
     this.allias = [];
 
@@ -168,7 +166,7 @@ class Command {
     });
   }
 
-  usageEmbed () {
+  usageEmbed (prefix) {
     let embed;
     if (this.category) {
       // Get all commands in sub command
@@ -176,7 +174,7 @@ class Command {
 
       client[this.subTree].tap(cmd => {
         data.push(
-          `**${this.prefix}${this.name} ${cmd.usage}** - ${cmd.description}`
+          `**${prefix}${this.name} ${cmd.usage}** - ${cmd.description}`
         );
       });
 

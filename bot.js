@@ -46,6 +46,14 @@ class Bot extends Client {
     this.Constants = Constants;
   }
 
+  prefix(message = undefined){
+    let prefixes = require( './databases/prefix.json' )
+    let prefix = this.config.get('defaultPrefix')
+    if (!prefix) prefix = '>'
+    if (!message) return prefix
+    return prefixes[message.guild.id] ? prefixes[message.guild.id] : prefix
+  }
+
   buildCollection () {
     return new Collection();
   }
@@ -65,7 +73,7 @@ class Bot extends Client {
         if (!file.endsWith('.js')) return;
         const props = require(`${dir}${file}`);
         const commandName = file.split('.')[0];
-        this[collectionName].set(commandName, new props(this.prefix));
+        this[collectionName].set(commandName, new props(this.prefix()));
       });
     });
   }
@@ -197,6 +205,7 @@ class Bot extends Client {
   }
 
   async listenForCommands (message) {
+
     // Ignore dms
     if (typeof message.channel === 'DMChannel') return;
 
@@ -213,12 +222,16 @@ class Bot extends Client {
     if (!message.member.guild.me.hasPermission('SEND_MESSAGES')) return;
     if (!message.channel.permissionsFor(message.guild.me).has('SEND_MESSAGES')) { return; }
 
-    if (message.content.startsWith(`<@!${message.member.guild.me.id}>`)) { return message.channel.send(`Use \`${this.prefix}help\` to get started!`); }
-
-    if (message.content[0] != this.prefix) return;
+    let content;
+    if (message.content.startsWith(this.prefix(message))){
+      content = message.content.slice(this.prefix(message).length).trim();
+    } else if (message.content.startsWith( `<@!${message.member.guild.me.id}>` )) {
+      content = message.content.slice(`<@!${message.member.guild.me.id}>`.length).trim();
+    } else {
+      return;
+    }
 
     // Standard argument and command definitions
-    const content = message.content.slice(this.prefix.length).trim();
 
     const rawArgs = content.split(/ +/g);
 
@@ -235,7 +248,7 @@ class Bot extends Client {
 
     if (command.args && !args.length) {
       if (command.usage) {
-        message.channel.send(await command.usageEmbed('', message.guild))
+        message.channel.send(await command.usageEmbed(this.prefix(message),'', message.guild))
           .catch(err => console.error(err));
       }
       return;

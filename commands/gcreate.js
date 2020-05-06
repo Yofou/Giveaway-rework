@@ -1,10 +1,9 @@
 const BaseCommand = require('../utils/baseCommand.js');
 
 class Gcreate extends BaseCommand {
-  constructor (prefix) {
-    super('create', 'create', `An interactive setup alternative of ${prefix}post`, {
-      args: false,
-      prefix: prefix
+  constructor () {
+    super('create', 'create', `An interactive setup alternative of post command`, {
+      args: false
     });
     this.allias = ['gcreate'];
     this.usage += `\nAlias: ${this.allias.join(',')}`;
@@ -114,7 +113,7 @@ class Gcreate extends BaseCommand {
 
         if (!isNaN(Number(answer))) {
           const tag = message.channel.members.get(answer);
-          if (!tag) { message.channel.send(`Can\'t find the channel by the id of **${answer}**, try again`); return false; }
+          if (!tag) { message.channel.send(`Can\'t find the guild member by that id of **${answer}**, try again`); return false; }
         }
 
         return true;

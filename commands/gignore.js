@@ -2,19 +2,18 @@ const BaseCommand = require('../utils/baseCommand.js');
 const fs = require('fs');
 
 class Gignore extends BaseCommand {
-  constructor (prefix) {
+  constructor () {
     super(
       'ignore',
       'ignore [channel_(id/mention/name) | all | clear | list]',
       'Allows the bot to ignore a channel\n*(run again to remove channel from list)*',
       {
-        args: true,
-        prefix: prefix
+        args: true
       }
     );
   }
 
-  usageEmbed (error = '') {
+  usageEmbed (prefix,error = '') {
     const data = [];
     data.push('**channel_id:** 18 digits (turn on developer mode to see them)');
     data.push('**channel_mention:** example - #general');
@@ -30,7 +29,7 @@ class Gignore extends BaseCommand {
     }
 
     embed
-      .addField('Usage', this.usage)
+      .addField('Usage', `${prefix}${this.usage}`)
       .addField('Options', data.join('\n'))
       .setTimestamp();
 
@@ -41,7 +40,7 @@ class Gignore extends BaseCommand {
     // some perm checking
     if (!message.member.hasPermission('ADMINISTRATOR')) {
       return message.reply(
-        this.usageEmbed('Sorry but you don\'t have the **ADMINISTRATOR** permission!')
+        this.usageEmbed(client.prefix(message),'Sorry but you don\'t have the **ADMINISTRATOR** permission!')
       );
     }
 
@@ -129,7 +128,7 @@ class Gignore extends BaseCommand {
           );
           if (!channel) {
             return message.channel.send(
-              this.usageEmbed(`Can't find the channel by \`${channelID}\``)
+              this.usageEmbed(client.prefix(message),`Can't find the channel by \`${channelID}\``)
             );
           }
           channelID = channel.id;

@@ -1,10 +1,8 @@
 const BaseCommand = require('../utils/baseCommand.js');
 
 class Grole extends BaseCommand {
-  constructor (prefix) {
-    super('role', 'role [role ID/role mention/role name]', 'Toggle on/off roles to override permission to do giveaway commands', {
-      prefix: prefix
-    });
+  constructor () {
+    super('role', 'role [role ID/role mention/role name]', 'Toggle on/off roles to override permission to do giveaway commands');
     this.allias = [
       'roles',
       'grole',
@@ -13,7 +11,7 @@ class Grole extends BaseCommand {
     this.usage += `\nAlias: ${this.allias.join(',')}`;
   }
 
-  async usageEmbed (error = '', guild) {
+  async usageEmbed (prefix,error = '', guild) {
     const data = [
       'role (ID/Mention/Name): a role that you want to have permission to use the giveaway commands'
     ];
@@ -24,11 +22,11 @@ class Grole extends BaseCommand {
     }
 
     embed
-      .addField('Usage', this.usage)
+      .addField('Usage', `${prefix}${this.usage}`)
       .addField('Parameters Help', data.join('\n\n'))
       .addField(
         'Examples',
-        `${this.prefix}roles 672970287200993325 \n${this.prefix}roles @RoleName\n${this.prefix}roles RoleName`
+        `${prefix}roles 672970287200993325 \n${prefix}roles @RoleName\n${prefix}roles RoleName`
       )
       .setTimestamp();
 
@@ -79,7 +77,7 @@ class Grole extends BaseCommand {
         } else if (roles.find(role => role.name == roleID)) {
           role = roles.find(role => role.name == roleID);
         } else {
-          return message.channel.send(await this.usageEmbed(`Sorry can\'t find the role of ${roleArg}`));
+          return message.channel.send(await this.usageEmbed(client.prefix(message),`Sorry can\'t find the role of ${roleArg}`));
         }
 
         const rolesDB = require('../databases/roles.json');
@@ -103,7 +101,7 @@ class Grole extends BaseCommand {
       })
       .catch(async (e) => {
         console.log(e);
-        return message.channel.send(await this.usageEmbed('Uh oh unexpected error please contact Yofou#0420'));
+        return message.channel.send(await this.usageEmbed(client.prefix(message),'Uh oh unexpected error please contact Yofou#0420'));
       });
   }
 }
