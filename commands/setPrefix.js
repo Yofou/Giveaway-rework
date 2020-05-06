@@ -14,11 +14,11 @@ class SetPrefix extends BaseCommand {
 
     if (requestedPrefix == client.config.get('defaultPrefix') && prefixes[message.guild.id]){
       delete prefixes[message.guild.id]
-      message.channel.send( `Prefix has been set too the default \`${client.config.get('defaultPrefix')}\`` )
+      message.channel.send( `Prefix has been set to the default \`${client.config.get('defaultPrefix')}\`` )
     } else {
       if (prefixes[message.guild.id] == requestedPrefix || (!prefixes[message.guild.id] && requestedPrefix == client.config.get('defaultPrefix')) ) return message.channel.send( `Please only set **different** prefixes` )
 
-      message.channel.send( `Prefix has been set too \`${requestedPrefix}\`` )
+      message.channel.send( `Prefix has been set to \`${requestedPrefix}\`` )
       prefixes[message.guild.id] = requestedPrefix
     }
 
