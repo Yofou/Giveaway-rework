@@ -4,6 +4,7 @@ class SetPrefix extends BaseCommand {
   constructor () {
     super('setprefix', 'setPrefix [someSymbol]', 'Will set the bots prefix for this server only');
     this.allias = ['prefix']
+    this.caseSensitiveArgs = true;
   }
 
   async run (client, message, args) {
@@ -11,11 +12,11 @@ class SetPrefix extends BaseCommand {
     let prefixs = require( '../databases/prefix.json' )
     const requestedPrefix = args[0]
 
-    if (requestedPrefix == '>' && prefixs[message.guild.id]){
+    if (requestedPrefix == client.config.get('defaultPrefix') && prefixs[message.guild.id]){
       delete prefixs[message.guild.id]
-      message.channel.send( `Prefix has been set too the default \`>\`` )
+      message.channel.send( `Prefix has been set too the default \`${client.config.get('defaultPrefix')}\`` )
     } else {
-      if (prefixs[message.guild.id] == requestedPrefix || (!prefixs[message.guild.id] && requestedPrefix == '>') ) return message.channel.send( `Please only set **different** prefixs` )
+      if (prefixs[message.guild.id] == requestedPrefix || (!prefixs[message.guild.id] && requestedPrefix == client.config.get('defaultPrefix')) ) return message.channel.send( `Please only set **different** prefixs` )
 
       message.channel.send( `Prefix has been set too \`${requestedPrefix}\`` )
       prefixs[message.guild.id] = requestedPrefix

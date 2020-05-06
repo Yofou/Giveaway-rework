@@ -48,7 +48,7 @@ class Bot extends Client {
 
   prefix(message = undefined){
     let prefixs = require( './databases/prefix.json' )
-    let prefix = this.config.get('prefix')
+    let prefix = this.config.get('defaultPrefix')
     if (!prefix) prefix = '>'
     if (!message) return prefix
     return prefixs[message.guild.id] ? prefixs[message.guild.id] : prefix
