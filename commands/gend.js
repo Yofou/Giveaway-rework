@@ -61,7 +61,7 @@ class Gend extends BaseCommand {
             delete giveawayDB[messageID];
             this.saveJsonFile('./databases/giveaway.json', JSON.stringify(giveawayDB, null, 4));
 
-            message.channel.send(embed.description + `\n${msgUrl}`);
+            message.channel.send(`Prize: **${embed.title}**\n${embed.description}\n${msgUrl}`);
           })
           .catch(e => message.channel.send(this.usageEmbed(client.prefix(message),'Uh oh unexpected error please contact Yofou#0420')));
       })

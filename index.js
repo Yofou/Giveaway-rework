@@ -73,7 +73,7 @@ client.setInterval( () => {
             }
           });
 
-          message.channel.send( embed.description + `\n${msgUrl}` )
+          message.channel.send( `Prize: **${embed.title}**\n${embed.description}\n${msgUrl}` )
             .catch(err => console.error(err));
         } )
       } else {
