@@ -20,7 +20,7 @@ const client = new Bot();
 client.buildDBs({ config: './config.json' });
 
 client.on('ready', () => {
-  client.buildCommands([['commands', './commands/']]);
+  client.buildCommands(`${__dirname}/commands`,{});
 
   if (!fs.existsSync(`${__dirname}/databases`)) fs.mkdirSync(`${__dirname}/databases`);
   glob( `${__dirname}/databases/*.json`, (err,files) => {

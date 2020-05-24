@@ -1,6 +1,8 @@
 const { Client, Collection, Constants, MessageEmbed } = require('discord.js');
 const fs = require('fs');
 const moment = require('moment');
+const glob = require('glob');
+const { parse } = require('path');
 require('moment-precise-range-plugin'); // for precise difference time calculation
 
 apiDefault = {
@@ -58,26 +60,6 @@ class Bot extends Client {
     return new Collection();
   }
 
-  setupCommand (dir) {
-    let collectionName;
-    if (typeof dir === 'object') {
-      collectionName = dir[0];
-      dir = dir[1];
-    } else {
-      collectionName = dir.split('/')[2];
-    }
-    this[collectionName] = new Collection();
-    fs.readdir(dir, (err, files) => {
-      if (err) return console.error(err);
-      files.forEach(file => {
-        if (!file.endsWith('.js')) return;
-        const props = require(`${dir}${file}`);
-        const commandName = file.split('.')[0];
-        this[collectionName].set(commandName, new props(this.prefix()));
-      });
-    });
-  }
-
   setupDB (collection, jsonDir) {
     const json = require(jsonDir);
     for (const i of Object.keys(json)) {
@@ -85,13 +67,22 @@ class Bot extends Client {
     }
   }
 
-  buildCommands (dirs) {
-    dirs.forEach(dir => {
-      this.setupCommand(dir);
-    });
+  async buildCommands(parentDir, collectionNameOverides) {
+    glob(`${parentDir}/**/*.js`, async (_, files) => {
+      files.forEach(file => {
+        let { dir, name } = parse(file);
+        let collectionName = dir.split('/').pop();
+        if (collectionNameOverides[collectionName])
+          collectionName = collectionNameOverides[collectionName];
+        if (!this[collectionName]) this[collectionName] = new Collection();
+        let cmd = require(file);
+        this[collectionName].set(name, new cmd(this.prefix));
+      });
 
-    this.on('message', this.listenForCommands);
+      this.on('message', this.listenForCommands);
+    });
   }
+
 
   buildDBs (dbCollection) {
     Object.entries(dbCollection).forEach(([collectionName, dbDir]) => {
