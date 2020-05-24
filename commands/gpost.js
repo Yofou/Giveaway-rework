@@ -1,14 +1,14 @@
 const BaseCommand = require('../utils/baseCommand.js');
 
 class Gpost extends BaseCommand {
-  constructor (prefix) {
+  constructor () {
     super('post', 'post [time] [winners] [title] (-c argument) (-h argument)', 'Posts a giveaway');
 
     this.caseSensitiveArgs = true;
   }
 
   // If anything goes wrong or just the user needs some basic knowledge this function will be run
-  usageEmbed (prefix,error = '') {
+  usageEmbed (prefix, error = '') {
     const data = [
       'time: A unit of time for when the giveaway will end in the format of days:hours:minutes:seconds',
       'winners: The number of winners the giveaway will randomly pick',
@@ -47,7 +47,7 @@ class Gpost extends BaseCommand {
       if (lowerArgs.includes('-host')) index = lowerArgs.indexOf('-host');
 
       // makes sure at least there is an argument next to the optional arg
-      if (index >= args.length - 1) return message.channel.send(this.usageEmbed(client.prefix(message),'No argument passed into -h'));
+      if (index >= args.length - 1) return message.channel.send(this.usageEmbed(client.prefix(message), 'No argument passed into -h'));
 
       // grab and validate it
       host = args[index + 1];
@@ -56,7 +56,7 @@ class Gpost extends BaseCommand {
         if (tag) host = `<@${tag.user.id}>`;
       } else {
         const tag = message.channel.members.get(host);
-        if (!tag) return message.channel.send(this.usageEmbed(client.prefix(message),`Sorry but I can\'t the userID by ${host} in this channel`));
+        if (!tag) return message.channel.send(this.usageEmbed(client.prefix(message), `Sorry but I can\'t the userID by ${host} in this channel`));
         host = `<@${tag.user.id}>`;
       }
 
@@ -70,7 +70,7 @@ class Gpost extends BaseCommand {
     }
 
     let channel = this.channelValidation(message, args);
-    if (channel.error) return message.channel.send(this.usageEmbed(client.prefix(message),channel.error));
+    if (channel.error) return message.channel.send(this.usageEmbed(client.prefix(message), channel.error));
     args = channel.args;
     channel = channel.channel;
 
@@ -79,23 +79,23 @@ class Gpost extends BaseCommand {
     description = description.join(' '); // makes description just a string
 
     // some basic validation to make sure they exist or is at least usable
-    if (!time) return message.channel.send(this.usageEmbed(client.prefix(message),'Time argument wasn\'t passed in'));
-    if (!winners) return message.channel.send(this.usageEmbed(client.prefix(message),'Winner argument wasn\'t passed in'));
-    if (description.length == 0) return message.channel.send(this.usageEmbed(client.prefix(message),'Title argument wasn\'t passed in'));
-    if (description.length >= 256) return message.channel.send(this.usageEmbed(client.prefix(message),'Can\'t make the title larger than 256 characters'));
+    if (!time) return message.channel.send(this.usageEmbed(client.prefix(message), 'Time argument wasn\'t passed in'));
+    if (!winners) return message.channel.send(this.usageEmbed(client.prefix(message), 'Winner argument wasn\'t passed in'));
+    if (description.length == 0) return message.channel.send(this.usageEmbed(client.prefix(message), 'Title argument wasn\'t passed in'));
+    if (description.length >= 256) return message.channel.send(this.usageEmbed(client.prefix(message), 'Can\'t make the title larger than 256 characters'));
 
     // if time argument isn't a straight up number passed in try to convert it into one
     if (isNaN(Number(time))) {
       // checks if
-      if (!time.includes(':')) return message.channel.send(this.usageEmbed(client.prefix(message),'Invalid time format'));
+      if (!time.includes(':')) return message.channel.send(this.usageEmbed(client.prefix(message), 'Invalid time format'));
       time = time.split(':');
-      if (time.length > 4) return message.channel.send(this.usageEmbed(client.prefix(message),'Too many numbers passed in'));
+      if (time.length > 4) return message.channel.send(this.usageEmbed(client.prefix(message), 'Too many numbers passed in'));
 
       let milli = 0;
 
       for (let i = 0; i < time.length; i++) {
         const item = Number(time[(time.length - 1) - i]);
-        if (isNaN(item)) return message.channel.send(this.usageEmbed(client.prefix(message),`${item} is not a number`));
+        if (isNaN(item)) return message.channel.send(this.usageEmbed(client.prefix(message), `${item} is not a number`));
 
         if (i == 3) { milli += item * 24 * (1000 * Math.pow(60, i - 1)); } else { milli += item * (1000 * Math.pow(60, i)); }
       }
@@ -106,14 +106,14 @@ class Gpost extends BaseCommand {
     }
 
     // set a range of 0 - 2 months for the time
-    if (time <= 0) return message.channel.send(this.usageEmbed(client.prefix(message),'Time argument can\'t be 0 or smaller'));
-    if (time >= 5184000000) return message.channel.send(this.usageEmbed(client.prefix(message),'What is even the point cunt...').setImage('https://i.imgur.com/DWrI2JY.gif'));
+    if (time <= 0) return message.channel.send(this.usageEmbed(client.prefix(message), 'Time argument can\'t be 0 or smaller'));
+    if (time >= 5184000000) return message.channel.send(this.usageEmbed(client.prefix(message), 'What is even the point cunt...').setImage('https://i.imgur.com/DWrI2JY.gif'));
 
     // set a range of 0 - what ever number you can think of
-    if (isNaN(Number(winners))) return message.channel.send(this.usageEmbed(client.prefix(message),`${winners} is not a number`));
+    if (isNaN(Number(winners))) return message.channel.send(this.usageEmbed(client.prefix(message), `${winners} is not a number`));
     winners = Number(winners);
-    if (winners <= 0) return message.channel.send(this.usageEmbed(client.prefix(message),'Winner argument can\'t be 0 or smaller'));
-    if (winners > message.guild.memberCount) return message.channel.send(this.usageEmbed(client.prefix(message),'Winner argument can\'t be more than the guilds member count'));
+    if (winners <= 0) return message.channel.send(this.usageEmbed(client.prefix(message), 'Winner argument can\'t be 0 or smaller'));
+    if (winners > message.guild.memberCount) return message.channel.send(this.usageEmbed(client.prefix(message), 'Winner argument can\'t be more than the guilds member count'));
 
     // structure the giveaway object
     const giveawayObj = {
@@ -125,12 +125,21 @@ class Gpost extends BaseCommand {
     };
 
     // send that baby out to the world :)
-    channel.send(client.giveawayEmbed(giveawayObj)).then(message => {
-      message.react('🎉');
-      const giveawayDB = require('../databases/giveaway.json');
-      giveawayDB[message.id] = giveawayObj;
-      this.saveJsonFile('./databases/giveaway.json', JSON.stringify(giveawayDB, null, 4));
-    });
+    channel.send(client.giveawayEmbed(giveawayObj))
+      .then(giveawayMsg => {
+        giveawayMsg.react('🎉');
+        message.react('🥳');
+        const giveawayDB = require('../databases/giveaway.json');
+        giveawayDB[giveawayMsg.id] = giveawayObj;
+        this.saveJsonFile('./databases/giveaway.json', JSON.stringify(giveawayDB, null, 4));
+      })
+      .catch(err => {
+        message.react('❌')
+          .then( () => message.reply('Something has went terribly wrong please contact Yofou#0420.'))
+          .catch(err => console.error(err));
+
+        console.error(err);
+      });
   }
 }
 

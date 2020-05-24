@@ -2,7 +2,7 @@ const BaseCommand = require('../utils/baseCommand.js');
 
 class Gcreate extends BaseCommand {
   constructor () {
-    super('create', 'create', `An interactive setup alternative of post command`, {
+    super('create', 'create', 'An interactive setup alternative of post command', {
       args: false
     });
     this.allias = ['gcreate'];

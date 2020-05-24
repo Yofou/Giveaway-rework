@@ -7,7 +7,7 @@ class Gend extends BaseCommand {
     this.usage += `\nAlias: ${this.allias.join(',')}`;
   }
 
-  usageEmbed (prefix,error = '') {
+  usageEmbed (prefix, error = '') {
     const data = [
       'messageID: the message id of the giveaway embed',
       'additional arguments: -c {channelID/mention/name}'
@@ -34,12 +34,12 @@ class Gend extends BaseCommand {
     if (this.checkGiveawayPerms(message)) return message.channel.send(`<@${message.author.id}> Sorry but you dont have the required role or permissions to run this command`);
 
     let channel = this.channelValidation(message, args);
-    if (channel.error) return message.channel.send(this.usageEmbed(client.prefix(message),channel.error));
+    if (channel.error) return message.channel.send(this.usageEmbed(client.prefix(message), channel.error));
     args = channel.args;
     channel = channel.channel;
 
     const [messageID] = args;
-    if (isNaN(Number(messageID))) return message.channel.send(this.usageEmbed(client.prefix(message),'Invalid message id (Not a number)'));
+    if (isNaN(Number(messageID))) return message.channel.send(this.usageEmbed(client.prefix(message), 'Invalid message id (Not a number)'));
     const giveawayDB = require('../databases/giveaway.json');
 
     const msgChannel = message;
@@ -49,8 +49,8 @@ class Gend extends BaseCommand {
       .then(message => {
         const originalEmbed = message.embeds[0];
         const msgUrl = message.url;
-        if (!originalEmbed) return msgChannel.channel.send(this.usageEmbed(client.prefix(message),'Not an embed message'));
-        if (originalEmbed.url != 'https://www.VerifedGiveaway.com/') return msgChannel.channel.send(this.usageEmbed('Invalid giveaway embed'));
+        if (!originalEmbed) return msgChannel.channel.send(this.usageEmbed(client.prefix(message), 'Not an embed message'));
+        if (originalEmbed.url != 'https://github.com/Yofou/Giveaway-rework') return msgChannel.channel.send(this.usageEmbed(client.prefix(message), 'Invalid giveaway embed'));
 
         message.reactions.cache.get('🎉').users
           .fetch()
@@ -63,10 +63,10 @@ class Gend extends BaseCommand {
 
             message.channel.send(`Prize: **${embed.title}**\n${embed.description}\n${msgUrl}`);
           })
-          .catch(e => message.channel.send(this.usageEmbed(client.prefix(message),'Uh oh unexpected error please contact Yofou#0420')));
+          .catch(e => message.channel.send(this.usageEmbed(client.prefix(message), 'Uh oh unexpected error please contact Yofou#0420')));
       })
       .catch(e => {
-        message.channel.send(this.usageEmbed(client.prefix(message),'Can\'t find the a message in this channel by that id'));
+        message.channel.send(this.usageEmbed(client.prefix(message), 'Can\'t find the a message in this channel by that id'));
       });
   }
 }
