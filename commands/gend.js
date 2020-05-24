@@ -48,8 +48,6 @@ class Gend extends BaseCommand {
       args = args.filter( arg => !(arg.toLowerCase() == '-o' || arg.toLowerCase() == '-old') )
     }
 
-    console.log( args )
-
     const [messageID] = args;
     if (isNaN(Number(messageID))) return message.channel.send(this.usageEmbed(client.prefix(message), 'Invalid message id (Not a number)'));
     const giveawayDB = require('../databases/giveaway.json');
@@ -62,8 +60,7 @@ class Gend extends BaseCommand {
         const originalEmbed = message.embeds[0];
         const msgUrl = message.url;
         if (!originalEmbed) return msgChannel.channel.send(this.usageEmbed(client.prefix(message), 'Not an embed message'));
-        console.log(originalEmbed.url,verifcationLink)
-        if (originalEmbed.url != verifcationLink) return msgChannel.channel.send(this.usageEmbed(client.prefix(message), 'Invalid giveaway embed'));
+        if (originalEmbed.url != verifcationLink) return msgChannel.channel.send(this.usageEmbed(client.prefix(message), `Invalid giveaway embed\n\nIf this happens to be an old giveaway (you can check by clicking the title and if it redirects you to \`https://www.VerifedGiveaway.com/\`) then add a **-o or -old** at the end of this command to be able to end/roll old giveaways.\nExample is ${client.prefix(message)}end 714211179987337337 -o`));
 
         message.reactions.cache.get('🎉').users
           .fetch()
