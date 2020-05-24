@@ -1,7 +1,7 @@
 const BaseCommand = require('../utils/baseCommand.js');
 
 class Gpost extends BaseCommand {
-  constructor (prefix) {
+  constructor () {
     super('post', 'post [time] [winners] [title] (-c argument) (-h argument)', 'Posts a giveaway');
 
     this.caseSensitiveArgs = true;

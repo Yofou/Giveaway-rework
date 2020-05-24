@@ -49,7 +49,7 @@ class Bot extends Client {
           collectionName = collectionNameOverides[collectionName];
         if (!this[collectionName]) this[collectionName] = new Collection();
         let cmd = require(file);
-        this[collectionName].set(name, new cmd(this.prefix));
+        this[collectionName].set(name, new cmd());
       });
 
       this.on('message', this.listenForCommands);
