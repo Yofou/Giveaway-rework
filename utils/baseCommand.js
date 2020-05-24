@@ -80,7 +80,7 @@ class Command {
       }
 
       if (channel.permissionsFor(message.guild.me).has(['VIEW_CHANNEL', 'SEND_MESSAGES']) == false) {
-        responseObj.error = 'Sorry but I don\'t have permission to view or send messages too that channel'; return responseObj;
+        responseObj.error = 'Sorry but I don\'t have permission to view or send messages to that channel'; return responseObj;
       } else if (channel.permissionsFor(message.member).has(['VIEW_CHANNEL']) == false) {
         responseObj.error = 'Sorry but you don\'t have permission to view that channel'; return responseObj;
       }
