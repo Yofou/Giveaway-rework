@@ -1,81 +1,35 @@
 const { Client, Collection, Constants, MessageEmbed } = require('discord.js');
-const fs = require('fs');
 const moment = require('moment');
+const glob = require('glob');
+const { parse } = require('path');
 require('moment-precise-range-plugin'); // for precise difference time calculation
 
-apiDefault = {
-  apiRequestMethod: 'sequential',
-  shardId: 1,
-  shardCount: 1,
-  messageCacheMaxSize: 100,
-  messageCacheLifetime: 300,
+baseOptions = {
+  messageCacheMaxSize: 100, // msgs
+  messageCacheLifetime: 300, // seconds
   messageSweepInterval: 30,
-  fetchAllMembers: false,
   disableMentions: 'everyone',
-  sync: false,
-  restWsBridgeTimeout: 5000,
-  restTimeOffset: 500,
-  retryLimit: Number.POSITIVE_INFINITY,
-  disabledEvents: [
-    'TYPING_START',
-    'PRESENCE_UPDATE',
-    'WEBHOOKS_UPDATE',
-    'VOICE_STATE_UPDATE',
-    'USER_NOTE_UPDATE',
-    'CHANNEL_PINS_UPDATE',
-    'RELATIONSHIP_ADD',
-    'RELATIONSHIP_REMOVE',
-    'GUILD_BAN_ADD',
-    'GUILD_BAN_REMOVE',
-    'USER_SETTINGS_UPDATE'
-  ],
-  ws: { large_threshold: 250 },
-  http: {
-    version: 7,
-    api: 'https://discordapp.com/api',
-    cdn: 'https://cdn.discordapp.com',
-    invite: 'https://discord.gg'
-  }
+  retryLimit: Number.POSITIVE_INFINITY
 };
 
 class Bot extends Client {
   constructor (customOptions) {
     // Merge options (custom will override default if given)
-    const options = { ...apiDefault, ...customOptions };
+    const options = { ...baseOptions, ...customOptions };
     super(options);
     this.Constants = Constants;
   }
 
-  prefix(message = undefined){
-    let prefixes = require( './databases/prefix.json' )
-    let prefix = this.config.get('defaultPrefix')
-    if (!prefix) prefix = '>'
-    if (!message) return prefix
-    return prefixes[message.guild.id] ? prefixes[message.guild.id] : prefix
+  prefix (message = undefined) {
+    const prefixes = require('./databases/prefix.json');
+    let prefix = this.config.get('defaultPrefix');
+    if (!prefix) prefix = '>';
+    if (!message) return prefix;
+    return prefixes[message.guild.id] ? prefixes[message.guild.id] : prefix;
   }
 
   buildCollection () {
     return new Collection();
-  }
-
-  setupCommand (dir) {
-    let collectionName;
-    if (typeof dir === 'object') {
-      collectionName = dir[0];
-      dir = dir[1];
-    } else {
-      collectionName = dir.split('/')[2];
-    }
-    this[collectionName] = new Collection();
-    fs.readdir(dir, (err, files) => {
-      if (err) return console.error(err);
-      files.forEach(file => {
-        if (!file.endsWith('.js')) return;
-        const props = require(`${dir}${file}`);
-        const commandName = file.split('.')[0];
-        this[collectionName].set(commandName, new props(this.prefix()));
-      });
-    });
   }
 
   setupDB (collection, jsonDir) {
@@ -85,12 +39,19 @@ class Bot extends Client {
     }
   }
 
-  buildCommands (dirs) {
-    dirs.forEach(dir => {
-      this.setupCommand(dir);
-    });
+  async buildCommands (parentDir, collectionNameOverides) {
+    glob(`${parentDir}/**/*.js`, async (_, files) => {
+      files.forEach(file => {
+        const { dir, name } = parse(file);
+        let collectionName = dir.split('/').pop();
+        if (collectionNameOverides[collectionName]) { collectionName = collectionNameOverides[collectionName]; }
+        if (!this[collectionName]) this[collectionName] = new Collection();
+        const cmd = require(file);
+        this[collectionName].set(name, new cmd());
+      });
 
-    this.on('message', this.listenForCommands);
+      this.on('message', this.listenForCommands);
+    });
   }
 
   buildDBs (dbCollection) {
@@ -205,7 +166,6 @@ class Bot extends Client {
   }
 
   async listenForCommands (message) {
-
     // Ignore dms
     if (typeof message.channel === 'DMChannel') return;
 
@@ -223,9 +183,9 @@ class Bot extends Client {
     if (!message.channel.permissionsFor(message.guild.me).has('SEND_MESSAGES')) { return; }
 
     let content;
-    if (message.content.startsWith(this.prefix(message))){
+    if (message.content.startsWith(this.prefix(message))) {
       content = message.content.slice(this.prefix(message).length).trim();
-    } else if (message.content.startsWith( `<@!${message.member.guild.me.id}>` )) {
+    } else if (message.content.startsWith(`<@!${message.member.guild.me.id}>`)) {
       content = message.content.slice(`<@!${message.member.guild.me.id}>`.length).trim();
     } else {
       return;
@@ -248,7 +208,7 @@ class Bot extends Client {
 
     if (command.args && !args.length) {
       if (command.usage) {
-        message.channel.send(await command.usageEmbed(this.prefix(message),'', message.guild))
+        message.channel.send(await command.usageEmbed(this.prefix(message), '', message.guild))
           .catch(err => console.error(err));
       }
       return;
