@@ -5,45 +5,18 @@ const glob = require('glob');
 const { parse } = require('path');
 require('moment-precise-range-plugin'); // for precise difference time calculation
 
-apiDefault = {
-  apiRequestMethod: 'sequential',
-  shardId: 1,
-  shardCount: 1,
-  messageCacheMaxSize: 100,
-  messageCacheLifetime: 300,
+baseOptions = {
+  messageCacheMaxSize: 100, // msgs
+  messageCacheLifetime: 300, // seconds
   messageSweepInterval: 30,
-  fetchAllMembers: false,
   disableMentions: 'everyone',
-  sync: false,
-  restWsBridgeTimeout: 5000,
-  restTimeOffset: 500,
-  retryLimit: Number.POSITIVE_INFINITY,
-  disabledEvents: [
-    'TYPING_START',
-    'PRESENCE_UPDATE',
-    'WEBHOOKS_UPDATE',
-    'VOICE_STATE_UPDATE',
-    'USER_NOTE_UPDATE',
-    'CHANNEL_PINS_UPDATE',
-    'RELATIONSHIP_ADD',
-    'RELATIONSHIP_REMOVE',
-    'GUILD_BAN_ADD',
-    'GUILD_BAN_REMOVE',
-    'USER_SETTINGS_UPDATE'
-  ],
-  ws: { large_threshold: 250 },
-  http: {
-    version: 7,
-    api: 'https://discordapp.com/api',
-    cdn: 'https://cdn.discordapp.com',
-    invite: 'https://discord.gg'
-  }
+  retryLimit: Number.POSITIVE_INFINITY
 };
 
 class Bot extends Client {
   constructor (customOptions) {
     // Merge options (custom will override default if given)
-    const options = { ...apiDefault, ...customOptions };
+    const options = { ...baseOptions, ...customOptions };
     super(options);
     this.Constants = Constants;
   }
