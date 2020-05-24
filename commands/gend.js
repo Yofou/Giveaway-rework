@@ -50,7 +50,7 @@ class Gend extends BaseCommand {
         const originalEmbed = message.embeds[0];
         const msgUrl = message.url;
         if (!originalEmbed) return msgChannel.channel.send(this.usageEmbed(client.prefix(message),'Not an embed message'));
-        if (originalEmbed.url != 'https://www.VerifedGiveaway.com/') return msgChannel.channel.send(this.usageEmbed('Invalid giveaway embed'));
+        if (originalEmbed.url != 'https://github.com/Yofou/Giveaway-rework') return msgChannel.channel.send(this.usageEmbed(client.prefix(message),'Invalid giveaway embed'));
 
         message.reactions.cache.get('🎉').users
           .fetch()

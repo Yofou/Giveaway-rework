@@ -105,7 +105,7 @@ class Bot extends Client {
     const embed = new MessageEmbed()
       .setTitle(Obj.title)
       .setColor('#7FB3D5')
-      .setURL('https://www.VerifedGiveaway.com/')
+      .setURL('https://github.com/Yofou/Giveaway-rework')
       .setDescription(`React with 🎉 to enter!\nTime remaining: **${timeLeft}**\nHosted by: ${Obj.host}`)
       .setFooter(`${Obj.winnerAmount} Winners | Ends at • ${moment(Obj.deadline).format('dddd, MMMM Do YYYY')}`);
 
@@ -153,7 +153,7 @@ class Bot extends Client {
     const embed = new MessageEmbed()
       .setTitle(originalEmbed.title)
       .setColor('#7FB3D5')
-      .setURL('https://www.VerifedGiveaway.com/')
+      .setURL('https://github.com/Yofou/Giveaway-rework')
       .setDescription(`${winnerAnnouncement}\n${parsedDesc[parsedDesc.length - 1]}`)
       .setFooter(originalEmbed.footer.text);
 

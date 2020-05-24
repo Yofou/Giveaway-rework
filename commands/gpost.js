@@ -125,12 +125,23 @@ class Gpost extends BaseCommand {
     };
 
     // send that baby out to the world :)
-    channel.send(client.giveawayEmbed(giveawayObj)).then(message => {
-      message.react('🎉');
-      const giveawayDB = require('../databases/giveaway.json');
-      giveawayDB[message.id] = giveawayObj;
-      this.saveJsonFile('./databases/giveaway.json', JSON.stringify(giveawayDB, null, 4));
-    });
+    channel.send(client.giveawayEmbed(giveawayObj))
+      .then(giveawayMsg => {
+        giveawayMsg.react('🎉');
+        message.react('🥳');
+        const giveawayDB = require('../databases/giveaway.json');
+        giveawayDB[giveawayMsg.id] = giveawayObj;
+        this.saveJsonFile('./databases/giveaway.json', JSON.stringify(giveawayDB, null, 4));
+      })
+      .catch(err => {
+
+        message.react('❌')
+          .then( message => message.reply('Something has went terribly wrong please contact Yofou#0420.') )
+          .catch( err => console.error(err) );
+
+        console.error(err)
+
+      })
   }
 }
 
