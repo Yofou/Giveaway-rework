@@ -1,5 +1,4 @@
 const { Client, Collection, Constants, MessageEmbed } = require('discord.js');
-const fs = require('fs');
 const moment = require('moment');
 const glob = require('glob');
 const { parse } = require('path');
@@ -21,12 +20,12 @@ class Bot extends Client {
     this.Constants = Constants;
   }
 
-  prefix(message = undefined){
-    let prefixes = require( './databases/prefix.json' )
-    let prefix = this.config.get('defaultPrefix')
-    if (!prefix) prefix = '>'
-    if (!message) return prefix
-    return prefixes[message.guild.id] ? prefixes[message.guild.id] : prefix
+  prefix (message = undefined) {
+    const prefixes = require('./databases/prefix.json');
+    let prefix = this.config.get('defaultPrefix');
+    if (!prefix) prefix = '>';
+    if (!message) return prefix;
+    return prefixes[message.guild.id] ? prefixes[message.guild.id] : prefix;
   }
 
   buildCollection () {
@@ -40,22 +39,20 @@ class Bot extends Client {
     }
   }
 
-  async buildCommands(parentDir, collectionNameOverides) {
+  async buildCommands (parentDir, collectionNameOverides) {
     glob(`${parentDir}/**/*.js`, async (_, files) => {
       files.forEach(file => {
-        let { dir, name } = parse(file);
+        const { dir, name } = parse(file);
         let collectionName = dir.split('/').pop();
-        if (collectionNameOverides[collectionName])
-          collectionName = collectionNameOverides[collectionName];
+        if (collectionNameOverides[collectionName]) { collectionName = collectionNameOverides[collectionName]; }
         if (!this[collectionName]) this[collectionName] = new Collection();
-        let cmd = require(file);
+        const cmd = require(file);
         this[collectionName].set(name, new cmd());
       });
 
       this.on('message', this.listenForCommands);
     });
   }
-
 
   buildDBs (dbCollection) {
     Object.entries(dbCollection).forEach(([collectionName, dbDir]) => {
@@ -169,7 +166,6 @@ class Bot extends Client {
   }
 
   async listenForCommands (message) {
-
     // Ignore dms
     if (typeof message.channel === 'DMChannel') return;
 
@@ -187,9 +183,9 @@ class Bot extends Client {
     if (!message.channel.permissionsFor(message.guild.me).has('SEND_MESSAGES')) { return; }
 
     let content;
-    if (message.content.startsWith(this.prefix(message))){
+    if (message.content.startsWith(this.prefix(message))) {
       content = message.content.slice(this.prefix(message).length).trim();
-    } else if (message.content.startsWith( `<@!${message.member.guild.me.id}>` )) {
+    } else if (message.content.startsWith(`<@!${message.member.guild.me.id}>`)) {
       content = message.content.slice(`<@!${message.member.guild.me.id}>`.length).trim();
     } else {
       return;
@@ -212,7 +208,7 @@ class Bot extends Client {
 
     if (command.args && !args.length) {
       if (command.usage) {
-        message.channel.send(await command.usageEmbed(this.prefix(message),'', message.guild))
+        message.channel.send(await command.usageEmbed(this.prefix(message), '', message.guild))
           .catch(err => console.error(err));
       }
       return;

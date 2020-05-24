@@ -5,7 +5,7 @@ class Gabort extends BaseCommand {
     super('abort', 'abort [messageID]', 'Aborts a giveaway so no winner will be picked');
   }
 
-  usageEmbed (prefix,error = '') {
+  usageEmbed (prefix, error = '') {
     const data = [
       'messageID: the message id of the giveaway embed',
       'additional arguments: -c {channelID/mention/name}'
@@ -32,12 +32,12 @@ class Gabort extends BaseCommand {
     if (this.checkGiveawayPerms(message)) return message.channel.send(`<@${message.author.id}> Sorry but you dont have the required role or permissions to run this command`);
 
     let channel = this.channelValidation(message, args);
-    if (channel.error) return message.channel.send(this.usageEmbed(client.prefix(message),channel.error));
+    if (channel.error) return message.channel.send(this.usageEmbed(client.prefix(message), channel.error));
     args = channel.args;
     channel = channel.channel;
 
     const [messageID] = args;
-    if (isNaN(Number(messageID))) return message.channel.send(this.usageEmbed(client.prefix(message),'Invalid message id (Not a number)'));
+    if (isNaN(Number(messageID))) return message.channel.send(this.usageEmbed(client.prefix(message), 'Invalid message id (Not a number)'));
     const giveawayDB = require('../databases/giveaway.json');
 
     const msgChannel = message;
@@ -60,7 +60,7 @@ class Gabort extends BaseCommand {
         msgChannel.channel.send('😢 Giveaway Aborted 😢');
       })
       .catch(e => {
-        message.channel.send(this.usageEmbed(client.prefix(message),'Can\'t find the a message in this channel by that id'));
+        message.channel.send(this.usageEmbed(client.prefix(message), 'Can\'t find the a message in this channel by that id'));
       });
   }
 }

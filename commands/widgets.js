@@ -7,7 +7,7 @@ class Widgets extends BaseCommand {
     this.caseSensitiveArgs = true;
   }
 
-  usageEmbed (prefix,error = '') {
+  usageEmbed (prefix, error = '') {
     const data = [
       'roleCount: @RoleMention/<RoleID>/RoleName Also add a space to make it count more than 1 role',
       'additional arguments: -c {channelID/mention/name}'
@@ -50,7 +50,7 @@ class Widgets extends BaseCommand {
     if (!message.member.hasPermission('ADMINISTRATOR')) return message.channel.send(`Sorry <@${message.author.id}> but you don't have permission to execute this command, I know smh...`);
 
     let channel = this.channelValidation(message, args);
-    if (channel.error) return message.channel.send(this.usageEmbed(client.prefix(message),channel.error));
+    if (channel.error) return message.channel.send(this.usageEmbed(client.prefix(message), channel.error));
     args = channel.args;
     channel = channel.channel;
 
