@@ -31,12 +31,22 @@ class Gend extends BaseCommand {
   }
 
   async run (client, message, args) {
+
     if (this.checkGiveawayPerms(message)) return message.channel.send(`<@${message.author.id}> Sorry but you dont have the required role or permissions to run this command`);
 
     let channel = this.channelValidation(message, args);
     if (channel.error) return message.channel.send(this.usageEmbed(client.prefix(message), channel.error));
     args = channel.args;
     channel = channel.channel;
+
+    // First thing we need to do is grab and filter any optional arguments passed into the command. I.E -channel or -host
+    let verifcationLink = 'https://github.com/Yofou/Giveaway-rework';
+    const lowerArgs = args.map(arg => arg.toLowerCase());
+
+    if (lowerArgs.includes('-o') || lowerArgs.includes('-old')) {
+      verifcationLink = 'https://www.VerifedGiveaway.com/'
+      args = args.filter( arg => !(arg.toLowerCase() == '-o' || arg.toLowerCase() == '-old') )
+    }
 
     const [messageID] = args;
     if (isNaN(Number(messageID))) return message.channel.send(this.usageEmbed(client.prefix(message), 'Invalid message id (Not a number)'));
@@ -50,7 +60,7 @@ class Gend extends BaseCommand {
         const originalEmbed = message.embeds[0];
         const msgUrl = message.url;
         if (!originalEmbed) return msgChannel.channel.send(this.usageEmbed(client.prefix(message), 'Not an embed message'));
-        if (originalEmbed.url != 'https://github.com/Yofou/Giveaway-rework') return msgChannel.channel.send(this.usageEmbed(client.prefix(message), 'Invalid giveaway embed'));
+        if (originalEmbed.url != verifcationLink) return msgChannel.channel.send(this.usageEmbed(client.prefix(message), `Invalid giveaway embed\n\nIf this happens to be an old giveaway (you can check by clicking the title and if it redirects you to \`https://www.VerifedGiveaway.com/\`) then add a **-o or -old** at the end of this command to be able to end/roll old giveaways.\nExample is ${client.prefix(message)}end 714211179987337337 -o`));
 
         message.reactions.cache.get('🎉').users
           .fetch()
