@@ -70,6 +70,8 @@ class Bot extends Client {
       .setDescription(`React with 🎉 to enter!\nTime remaining: **${timeLeft}**\nHosted by: ${Obj.host}`)
       .setFooter(`${Obj.winnerAmount} Winners | Ends at • ${moment(Obj.deadline).format('dddd, MMMM Do YYYY')}`);
 
+    if (Obj.image) embed.setImage(Obj.image)
+
     return embed;
   }
 
@@ -117,6 +119,8 @@ class Bot extends Client {
       .setURL('https://github.com/Yofou/Giveaway-rework')
       .setDescription(`${winnerAnnouncement}\n${parsedDesc[parsedDesc.length - 1]}`)
       .setFooter(originalEmbed.footer.text);
+
+    if (originalEmbed.image) embed.setImage(originalEmbed.image.url)
 
     return embed;
   }
