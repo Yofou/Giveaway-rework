@@ -64,6 +64,7 @@ client.setInterval( () => {
         .then( (users) => {
           const embed = client.finishEmbed( users,originalEmbed );
           message.edit( embed )
+            .then( msg => msg.unpin().catch(err => console.error(err) ) )
             .catch(err => console.error(err));
           delete giveawayDB[ message.id ];
           fs.writeFile('./databases/giveaway.json', JSON.stringify( giveawayDB, null, 4 ) , 'utf8', function(err) {
@@ -82,7 +83,7 @@ client.setInterval( () => {
       }
     })
   }
-}, 10000 );
+}, 25000 );
 
 client.setInterval( () => {
 

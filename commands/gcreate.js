@@ -1,4 +1,5 @@
 const BaseCommand = require('../utils/baseCommand.js');
+const isImageUrl = require('is-image-url');
 
 class Gcreate extends BaseCommand {
   constructor () {
@@ -24,7 +25,14 @@ class Gcreate extends BaseCommand {
       // Listen for a answer
       message.channel.awaitMessages(response => response.author.id == message.author.id, { max: 1, time: 120000, errors: ['time'] })
     		.then(collected => {
-          let answer = collected.first().content;
+          let answer = collected.first();
+
+          if (answer.attachments.first()) {
+            answer = answer.attachments.first().url;
+          } else {
+            answer = answer.content;
+          }
+
           if (answer.toLowerCase() == 'cancel') return collected.first().react('👌');
           if (questions[index][1](answer)) {
             // Some prefix so the >post know where talking about the channel selection or who hosting the giveaway
@@ -33,6 +41,13 @@ class Gcreate extends BaseCommand {
               if (answer.toLowerCase() == 'here') answer = message.channel.id;
             }
             if (index == 3) {
+              if (!answer.toLowerCase().includes('no')) {
+                answers.push('-img');
+              } else {
+                answer = '';
+              }
+            }
+            if (index == 4) {
               answers.push('-h');
               if (answer.toLowerCase() == 'me') answer = message.author.id;
             }
@@ -107,6 +122,11 @@ class Gcreate extends BaseCommand {
         const val = answer.length < 256;
         if (!val) message.channel.send('Title needs to be 256 characters or less, try again');
         return val;
+      }],
+      ['An Image would look nice with this giveaway **(type `no` if you don\'t want to see an image on this giveaway)**', (answer) => {
+        if (answer.toLowerCase().includes('no')) return true;
+        if (!isImageUrl(answer)) { message.channel.send('Ah! Either the image url is invalid or does not end with a image file extenstion (pst like **.png** or **.jpg**)'); return false; }
+        return true;
       }],
       ['Oh! before I forget who is hosting the giveaway? **(type `me` if you want to set yourself as the host)**', (answer) => {
         if (answer.toLowerCase() == 'me') return true;

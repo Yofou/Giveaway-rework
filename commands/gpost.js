@@ -1,8 +1,9 @@
 const BaseCommand = require('../utils/baseCommand.js');
+const isImageUrl = require('is-image-url');
 
 class Gpost extends BaseCommand {
   constructor () {
-    super('post', 'post [time] [winners] [title] (-c argument) (-h argument)', 'Posts a giveaway');
+    super('post', 'post [time] [winners] [title] (-c argument) (-h argument) (-img url)', 'Posts a giveaway');
 
     this.caseSensitiveArgs = true;
   }
@@ -13,7 +14,7 @@ class Gpost extends BaseCommand {
       'time: A unit of time for when the giveaway will end in the format of days:hours:minutes:seconds',
       'winners: The number of winners the giveaway will randomly pick',
       'title: Ideally what you\'re going to be giving away',
-      'additional arguments: -h {text/mention} & -c {channelID/mention/name}'
+      'additional arguments: -h {text/mention}, -c {channelID/mention/name},\n-img {valid url: that ends with a file extenstion}'
     ];
     const embed = this.RichEmbed().setColor('#7FB3D5');
 
@@ -38,8 +39,8 @@ class Gpost extends BaseCommand {
     if (this.checkGiveawayPerms(message)) return message.channel.send(`<@${message.author.id}> Sorry but you dont have the required role or permissions to run this command`);
 
     // First thing we need to do is grab and filter any optional arguments passed into the command. I.E -channel or -host
-    let host;
-    const lowerArgs = args.map(arg => arg.toLowerCase());
+    let host = `<@${message.author.id}>`;
+    let lowerArgs = args.map(arg => arg.toLowerCase());
     if (lowerArgs.includes('-h') || lowerArgs.includes('-host')) {
       // find the index of the host argument
       let index;
@@ -65,8 +66,26 @@ class Gpost extends BaseCommand {
         if (arg != args[index] && arg != args[index + 1]) return arg;
       }
       );
-    } else {
-      host = `<@${message.author.id}>`;
+    }
+
+    let image = null;
+    lowerArgs = args.map(arg => arg.toLowerCase());
+    if (lowerArgs.includes('-img') || lowerArgs.includes('-image')) {
+      // find the index of the host argument
+      let index;
+      if (lowerArgs.includes('-img')) index = lowerArgs.indexOf('-img');
+      if (lowerArgs.includes('-image')) index = lowerArgs.indexOf('-image');
+
+      // makes sure at least there is an argument next to the optional arg
+      if (index >= args.length - 1) return message.channel.send(this.usageEmbed(client.prefix(message), 'No argument passed into -img or -image'));
+
+      image = args[index + 1];
+      if (isImageUrl(image) == false) return message.channel.send(this.usageEmbed(client.prefix(message), 'Url either doesn\'t exist or doesn\'t return a image for me to use\nPlease make sure the url ends with a image file extenstion on the end'));
+
+      // then remove it from main args array
+      args = args.filter(arg => {
+        if (arg != args[index] && arg != args[index + 1]) return arg;
+      });
     }
 
     let channel = this.channelValidation(message, args);
@@ -121,21 +140,23 @@ class Gpost extends BaseCommand {
       deadline: Date.now() + time,
       title: description,
       winnerAmount: winners,
-      channelID: channel.id
+      channelID: channel.id,
+      image: image
     };
 
     // send that baby out to the world :)
     channel.send(client.giveawayEmbed(giveawayObj))
       .then(giveawayMsg => {
-        giveawayMsg.react('🎉');
-        message.react('🥳');
+        giveawayMsg.react('🎉').catch(err => console.error(err)); ;
+        giveawayMsg.pin().catch(err => console.error(err));
+        message.react('🥳').catch(err => console.error(err)); ;
         const giveawayDB = require('../databases/giveaway.json');
         giveawayDB[giveawayMsg.id] = giveawayObj;
         this.saveJsonFile('./databases/giveaway.json', JSON.stringify(giveawayDB, null, 4));
       })
       .catch(err => {
         message.react('❌')
-          .then( () => message.reply('Something has went terribly wrong please contact Yofou#0420.'))
+          .then(() => message.reply('Something has went terribly wrong please contact Yofou#0420.'))
           .catch(err => console.error(err));
 
         console.error(err);
