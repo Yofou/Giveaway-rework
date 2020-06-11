@@ -70,7 +70,7 @@ class Gpost extends BaseCommand {
 
     let image = null;
     lowerArgs = args.map(arg => arg.toLowerCase());
-    if ( lowerArgs.includes('-img') || lowerArgs.includes('-image') ){
+    if (lowerArgs.includes('-img') || lowerArgs.includes('-image')) {
       // find the index of the host argument
       let index;
       if (lowerArgs.includes('-img')) index = lowerArgs.indexOf('-img');
@@ -79,13 +79,13 @@ class Gpost extends BaseCommand {
       // makes sure at least there is an argument next to the optional arg
       if (index >= args.length - 1) return message.channel.send(this.usageEmbed(client.prefix(message), 'No argument passed into -img or -image'));
 
-      image = args[index + 1]
+      image = args[index + 1];
       if (isImageUrl(image) == false) return message.channel.send(this.usageEmbed(client.prefix(message), 'Url either doesn\'t exist or doesn\'t return a image for me to use\nPlease make sure the url ends with a image file extenstion on the end'));
 
       // then remove it from main args array
       args = args.filter(arg => {
         if (arg != args[index] && arg != args[index + 1]) return arg;
-      })
+      });
     }
 
     let channel = this.channelValidation(message, args);
@@ -141,21 +141,22 @@ class Gpost extends BaseCommand {
       title: description,
       winnerAmount: winners,
       channelID: channel.id,
-      image : image
+      image: image
     };
 
     // send that baby out to the world :)
     channel.send(client.giveawayEmbed(giveawayObj))
       .then(giveawayMsg => {
-        giveawayMsg.react('🎉');
-        message.react('🥳');
+        giveawayMsg.react('🎉').catch(err => console.error(err)); ;
+        giveawayMsg.pin().catch(err => console.error(err));
+        message.react('🥳').catch(err => console.error(err)); ;
         const giveawayDB = require('../databases/giveaway.json');
         giveawayDB[giveawayMsg.id] = giveawayObj;
         this.saveJsonFile('./databases/giveaway.json', JSON.stringify(giveawayDB, null, 4));
       })
       .catch(err => {
         message.react('❌')
-          .then( () => message.reply('Something has went terribly wrong please contact Yofou#0420.'))
+          .then(() => message.reply('Something has went terribly wrong please contact Yofou#0420.'))
           .catch(err => console.error(err));
 
         console.error(err);

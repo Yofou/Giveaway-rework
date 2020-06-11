@@ -25,12 +25,12 @@ class Gcreate extends BaseCommand {
       // Listen for a answer
       message.channel.awaitMessages(response => response.author.id == message.author.id, { max: 1, time: 120000, errors: ['time'] })
     		.then(collected => {
-          let answer = collected.first()
+          let answer = collected.first();
 
-          if (answer.attachments.first()){
-            answer = answer.attachments.first().url
+          if (answer.attachments.first()) {
+            answer = answer.attachments.first().url;
           } else {
-            answer = answer.content
+            answer = answer.content;
           }
 
           if (answer.toLowerCase() == 'cancel') return collected.first().react('👌');
@@ -42,9 +42,9 @@ class Gcreate extends BaseCommand {
             }
             if (index == 3) {
               if (!answer.toLowerCase().includes('no')) {
-                answers.push('-img')
+                answers.push('-img');
               } else {
-                answer = ''
+                answer = '';
               }
             }
             if (index == 4) {
@@ -124,9 +124,9 @@ class Gcreate extends BaseCommand {
         return val;
       }],
       ['An Image would look nice with this giveaway **(type `no` if you don\'t want to see an image on this giveaway)**', (answer) => {
-        if (answer.toLowerCase().includes('no')) return true
-        if (!isImageUrl(answer)) { message.channel.send(`Ah! Either the image url is invalid or does not end with a image file extenstion (pst like **.png** or **.jpg**)`); return false }
-        return true
+        if (answer.toLowerCase().includes('no')) return true;
+        if (!isImageUrl(answer)) { message.channel.send('Ah! Either the image url is invalid or does not end with a image file extenstion (pst like **.png** or **.jpg**)'); return false; }
+        return true;
       }],
       ['Oh! before I forget who is hosting the giveaway? **(type `me` if you want to set yourself as the host)**', (answer) => {
         if (answer.toLowerCase() == 'me') return true;

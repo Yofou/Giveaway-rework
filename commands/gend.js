@@ -31,7 +31,6 @@ class Gend extends BaseCommand {
   }
 
   async run (client, message, args) {
-
     if (this.checkGiveawayPerms(message)) return message.channel.send(`<@${message.author.id}> Sorry but you dont have the required role or permissions to run this command`);
 
     let channel = this.channelValidation(message, args);
@@ -44,8 +43,8 @@ class Gend extends BaseCommand {
     const lowerArgs = args.map(arg => arg.toLowerCase());
 
     if (lowerArgs.includes('-o') || lowerArgs.includes('-old')) {
-      verifcationLink = 'https://www.VerifedGiveaway.com/'
-      args = args.filter( arg => !(arg.toLowerCase() == '-o' || arg.toLowerCase() == '-old') )
+      verifcationLink = 'https://www.VerifedGiveaway.com/';
+      args = args.filter(arg => !(arg.toLowerCase() == '-o' || arg.toLowerCase() == '-old'));
     }
 
     const [messageID] = args;
@@ -67,6 +66,7 @@ class Gend extends BaseCommand {
           .then((users) => {
             const embed = client.finishEmbed(users, originalEmbed);
             message.edit(embed);
+            message.unpin().catch(err => console.error(err));
             msgChannel.react('👌');
             delete giveawayDB[messageID];
             this.saveJsonFile('./databases/giveaway.json', JSON.stringify(giveawayDB, null, 4));

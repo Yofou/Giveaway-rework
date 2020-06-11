@@ -85,7 +85,6 @@ class Command {
         responseObj.error = 'Sorry but you don\'t have permission to view that channel'; return responseObj;
       }
 
-
       args = args.filter(arg => {
         if (arg != args[index] && arg != args[index + 1]) return arg;
       }

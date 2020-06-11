@@ -54,6 +54,7 @@ class Gabort extends BaseCommand {
           .setFooter(originalEmbed.footer.text);
 
         message.edit(embed);
+        message.unpin().catch(err => console.error(err));
         message.reactions.removeAll().catch(error => console.error('Failed to clear reactions: ', error));
         delete giveawayDB[messageID];
         this.saveJsonFile('./databases/giveaway.json', JSON.stringify(giveawayDB, null, 4));
