@@ -1,4 +1,5 @@
 const BaseCommand = require('../utils/baseCommand.js');
+const DB = require('../databases/db.js')
 
 class Widgets extends BaseCommand {
   constructor () {
@@ -74,18 +75,18 @@ class Widgets extends BaseCommand {
       .setDescription(`${channel.toString()}\n${client.toWidget(args.join(' '), tagFunctions)}`);
 
     channel.send(embed)
-      .then(msg => {
+      .then( async (msg) => {
         message.delete();
 
-        const widget = require('../databases/widget.json');
-
-        widget[msg.id] = {
+        const widget = {
+          id : msg.id,
           channelID: channel.id,
           guildID: message.guild.id,
           rawArgs: args.join(' ')
         };
 
-        this.saveJsonFile('./databases/widget.json', JSON.stringify(widget, null, 4));
+        await DB.sequelize.models.widget.create(widget)
+          .catch( e => console.log(e) );
       });
   }
 }
