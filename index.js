@@ -2,6 +2,7 @@ const Bot = require('./bot.js');
 const fs = require('fs');
 const glob = require('glob');
 const { parse } = require('path');
+const DB = require('./databases/db.js')
 
 if (!fs.existsSync(`${__dirname}/config.json`)){
   fs.writeFile(`./config.json`, JSON.stringify( { token: "place your bot token here", OWNER : "place the bot owner discord id here", defaultPrefix: "place your desired prefix here" }, null, 4 ) , 'utf8', function(err) {
@@ -45,45 +46,31 @@ client.on('ready', () => {
   } )
 });
 
-client.setInterval( () => {
-  let giveawayDB = require( './databases/giveaway.json' );
 
-  for (let msgID in giveawayDB) {
-    const giveawayObj = giveawayDB[msgID];
-
-    let channel = client.channels.cache.get(giveawayObj.channelID);
-    channel.messages
-    .fetch(msgID)
-    .then(message => {
-
-      if (Date.now() > giveawayObj.deadline) {
+client.setInterval( async () => {
+  try {
+    const allGiveaways = await DB.sequelize.models.giveaway.findAll()
+    allGiveaways.forEach( async ( giveaway ) => {
+      const channel = client.channels.cache.get(giveaway.channelID);
+      const message = await channel.messages.fetch(giveaway.id)
+      if (Date.now() > Number(giveaway.deadline) ) {
         const originalEmbed = message.embeds[0];
-        const msgUrl = message.url;
-        let users = message.reactions.cache.get('🎉').users
-        .fetch()
-        .then( (users) => {
-          const embed = client.finishEmbed( users,originalEmbed );
-          message.edit( embed )
-            .then( msg => msg.unpin().catch(err => console.error(err) ) )
-            .catch(err => console.error(err));
-          delete giveawayDB[ message.id ];
-          fs.writeFile('./databases/giveaway.json', JSON.stringify( giveawayDB, null, 4 ) , 'utf8', function(err) {
-            if (err) {
-              console.log('An error occurred while writing JSON Object to file.');
-              return console.log(err);
-            }
-          });
-
-          message.channel.send( `Prize: **${embed.title}**\n${embed.description}\n${msgUrl}` )
-            .catch(err => console.error(err));
-        } )
+        const users = await message.reactions.cache.get('🎉').users.fetch()
+        const embed = client.finishEmbed( users,originalEmbed );
+        const winnerMSG = await message.edit( embed )
+        winnerMSG.unpin().catch(err => console.error(err) )
+        giveaway.destroy()
+        await message.channel.send( `Prize: **${embed.title}**\n${embed.description}\n${message.url}` )
       } else {
-        message.edit( client.giveawayEmbed(giveawayObj) )
-          .catch(err => console.error(err));
+        await message.edit( client.giveawayEmbed(giveaway) )
       }
-    })
+
+    });
+
+  } catch (e) {
+    console.log(e);
   }
-}, 25000 );
+}, 25000 )
 
 client.setInterval( () => {
 

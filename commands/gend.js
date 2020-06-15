@@ -1,4 +1,5 @@
 const BaseCommand = require('../utils/baseCommand.js');
+const DB = require('../databases/db.js');
 
 class Gend extends BaseCommand {
   constructor () {
@@ -49,7 +50,6 @@ class Gend extends BaseCommand {
 
     const [messageID] = args;
     if (isNaN(Number(messageID))) return message.channel.send(this.usageEmbed(client.prefix(message), 'Invalid message id (Not a number)'));
-    const giveawayDB = require('../databases/giveaway.json');
 
     const msgChannel = message;
 
@@ -63,13 +63,14 @@ class Gend extends BaseCommand {
 
         message.reactions.cache.get('🎉').users
           .fetch()
-          .then((users) => {
+          .then( async (users) => {
             const embed = client.finishEmbed(users, originalEmbed);
             message.edit(embed);
             message.unpin().catch(err => console.error(err));
             msgChannel.react('👌');
-            delete giveawayDB[messageID];
-            this.saveJsonFile('./databases/giveaway.json', JSON.stringify(giveawayDB, null, 4));
+
+            const giveaway = await DB.sequelize.models.giveaway.findByPk( message.id )
+            if (giveaway) await giveaway.destroy()
 
             message.channel.send(`Prize: **${embed.title}**\n${embed.description}\n${msgUrl}`);
           })

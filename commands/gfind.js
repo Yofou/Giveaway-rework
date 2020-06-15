@@ -1,6 +1,7 @@
 const BaseCommand = require('../utils/baseCommand.js');
 const moment = require('moment');
 require('moment-precise-range-plugin'); // for precise difference time calculation
+const DB = require('../databases/db.js')
 
 class Gfind extends BaseCommand {
   constructor () {
@@ -24,14 +25,9 @@ class Gfind extends BaseCommand {
   }
 
   async run (client, message, args) {
-    const Giveaways = require('../databases/giveaway.json');
-    const fields = []; // We will push giveaway objects in here if valid
+    const allGiveaways = await DB.sequelize.models.giveaway.findAll()
 
-    for (const GiveawayID in Giveaways) {
-      const obj = Giveaways[GiveawayID];
-      obj.messageID = GiveawayID;
-      if (message.guild.channels.cache.has(obj.channelID)) fields.push(obj);
-    }
+    const fields = allGiveaways.filter( giveaway => message.guild.channels.cache.has(giveaway.channelID) )
 
     if (fields.length == 0) return message.channel.send('Hey they\'re no active giveaways going on right now in this guild.');
 
@@ -49,7 +45,7 @@ class Gfind extends BaseCommand {
       for (const inner of outer) {
         const timeLeft = moment(Date.now()).preciseDiff(inner.deadline);
         tEmbed.addField(
-          `https://discordapp.com/channels/${message.guild.id}/${inner.channelID}/${inner.messageID}`,
+          `https://discordapp.com/channels/${message.guild.id}/${inner.channelID}/${inner.id}`,
           '```\n' +
             `🏷️ Title: ${inner.title}\n` +
             `⏰ Time Remaining: ${timeLeft}\n` +

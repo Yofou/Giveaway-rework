@@ -1,5 +1,6 @@
 const BaseCommand = require('../utils/baseCommand.js');
 const isImageUrl = require('is-image-url');
+const DB = require('../databases/db.js')
 
 class Gpost extends BaseCommand {
   constructor () {
@@ -146,13 +147,14 @@ class Gpost extends BaseCommand {
 
     // send that baby out to the world :)
     channel.send(client.giveawayEmbed(giveawayObj))
-      .then(giveawayMsg => {
+      .then( async (giveawayMsg) => {
         giveawayMsg.react('🎉').catch(err => console.error(err)); ;
         giveawayMsg.pin().catch(err => console.error(err));
         message.react('🥳').catch(err => console.error(err)); ;
-        const giveawayDB = require('../databases/giveaway.json');
-        giveawayDB[giveawayMsg.id] = giveawayObj;
-        this.saveJsonFile('./databases/giveaway.json', JSON.stringify(giveawayDB, null, 4));
+        await DB.sequelize.models.giveaway.create({
+          id: giveawayMsg.id,
+          ...giveawayObj
+        })
       })
       .catch(err => {
         message.react('❌')
