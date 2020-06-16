@@ -24,7 +24,7 @@ client.on('ready', () => {
   client.buildCommands(`${__dirname}/commands`,{});
 
   if (!fs.existsSync(`${__dirname}/databases`)) fs.mkdirSync(`${__dirname}/databases`);
-  glob( `${__dirname}/databases/*.json`, (err,files) => {
+  glob( `${__dirname}/databases/*.json`, async (err,files) => {
     files = files.map( file => parse( file ).name );
     const dbs = ['giveaway','ignore','roles','widget','prefix'];
 
@@ -41,7 +41,7 @@ client.on('ready', () => {
     });
 
     console.log(`Logged in as ${client.user.tag}!`);
-    client.user.setActivity(`for ${client.prefix()}help`, { type: 'WATCHING' })
+    client.user.setActivity(`for ${await client.prefix()}help`, { type: 'WATCHING' })
       .catch(err => console.error(err));
   } )
 });

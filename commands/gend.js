@@ -35,7 +35,7 @@ class Gend extends BaseCommand {
     if (this.checkGiveawayPerms(message)) return message.channel.send(`<@${message.author.id}> Sorry but you dont have the required role or permissions to run this command`);
 
     let channel = this.channelValidation(message, args);
-    if (channel.error) return message.channel.send(this.usageEmbed(client.prefix(message), channel.error));
+    if (channel.error) return message.channel.send(this.usageEmbed(await client.prefix(message), channel.error));
     args = channel.args;
     channel = channel.channel;
 
@@ -49,17 +49,17 @@ class Gend extends BaseCommand {
     }
 
     const [messageID] = args;
-    if (isNaN(Number(messageID))) return message.channel.send(this.usageEmbed(client.prefix(message), 'Invalid message id (Not a number)'));
+    if (isNaN(Number(messageID))) return message.channel.send(this.usageEmbed(await client.prefix(message), 'Invalid message id (Not a number)'));
 
     const msgChannel = message;
 
     channel.messages
       .fetch(messageID)
-      .then(message => {
+      .then( async (message) => {
         const originalEmbed = message.embeds[0];
         const msgUrl = message.url;
-        if (!originalEmbed) return msgChannel.channel.send(this.usageEmbed(client.prefix(message), 'Not an embed message'));
-        if (originalEmbed.url != verifcationLink) return msgChannel.channel.send(this.usageEmbed(client.prefix(message), `Invalid giveaway embed\n\nIf this happens to be an old giveaway (you can check by clicking the title and if it redirects you to \`https://www.VerifedGiveaway.com/\`) then add a **-o or -old** at the end of this command to be able to end/roll old giveaways.\nExample is ${client.prefix(message)}end 714211179987337337 -o`));
+        if (!originalEmbed) return msgChannel.channel.send(this.usageEmbed(await client.prefix(message), 'Not an embed message'));
+        if (originalEmbed.url != verifcationLink) return msgChannel.channel.send(this.usageEmbed(await client.prefix(message), `Invalid giveaway embed\n\nIf this happens to be an old giveaway (you can check by clicking the title and if it redirects you to \`https://www.VerifedGiveaway.com/\`) then add a **-o or -old** at the end of this command to be able to end/roll old giveaways.\nExample is ${await client.prefix(message)}end 714211179987337337 -o`));
 
         message.reactions.cache.get('🎉').users
           .fetch()
@@ -74,10 +74,10 @@ class Gend extends BaseCommand {
 
             message.channel.send(`Prize: **${embed.title}**\n${embed.description}\n${msgUrl}`);
           })
-          .catch(e => message.channel.send(this.usageEmbed(client.prefix(message), 'Uh oh unexpected error please contact Yofou#0420')));
+          .catch( async (e) => message.channel.send(this.usageEmbed(await client.prefix(message), 'Uh oh unexpected error please contact Yofou#0420')));
       })
-      .catch(e => {
-        message.channel.send(this.usageEmbed(client.prefix(message), 'Can\'t find the a message in this channel by that id'));
+      .catch( async (e) => {
+        message.channel.send(this.usageEmbed(await client.prefix(message), 'Can\'t find the a message in this channel by that id'));
       });
   }
 }

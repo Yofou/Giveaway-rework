@@ -1,4 +1,5 @@
 const BaseCommand = require('../utils/baseCommand.js');
+const DB = require('../databases/db.js')
 
 class SetPrefix extends BaseCommand {
   constructor () {
@@ -9,20 +10,31 @@ class SetPrefix extends BaseCommand {
 
   async run (client, message, args) {
     if (!message.member.hasPermission('ADMINISTRATOR')) return message.channel.send('Sorry but you dont have the permissions to do this command :(');
-    const prefixes = require('../databases/prefix.json');
     const requestedPrefix = args[0];
 
-    if (requestedPrefix == client.config.get('defaultPrefix') && prefixes[message.guild.id]) {
-      delete prefixes[message.guild.id];
-      message.channel.send(`Prefix has been set to the default \`${client.config.get('defaultPrefix')}\``);
-    } else {
-      if (prefixes[message.guild.id] == requestedPrefix || (!prefixes[message.guild.id] && requestedPrefix == client.config.get('defaultPrefix'))) return message.channel.send('Please only set **different** prefixes');
+    const guildPrefix = await DB.sequelize.models.prefix.findByPk( message.guild.id )
 
-      message.channel.send(`Prefix has been set to \`${requestedPrefix}\``);
-      prefixes[message.guild.id] = requestedPrefix;
+    if ( !guildPrefix ){
+      if (requestedPrefix == client.config.get('defaultPrefix')) return message.channel.send('Please only set **different** prefixs')
+      await DB.sequelize.models.prefix.create({
+        id: message.guild.id,
+        prefix: requestedPrefix
+      })
+    } else {
+
+      if (guildPrefix.prefix == requestedPrefix) return message.channel.send('Please only set **different** prefixs')
+
+      if (requestedPrefix == client.config.get('defaultPrefix')) {
+        guildPrefix.destroy()
+        return message.channel.send(`Prefix has been set too the default \`${requestedPrefix}\``)
+      } else {
+        guildPrefix.prefix = requestedPrefix
+        await guildPrefix.save()
+      }
     }
 
-    this.saveJsonFile('./databases/prefix.json', JSON.stringify(prefixes, null, 4));
+    message.channel.send(`Prefix has been set to \`${requestedPrefix}\``)
+
   }
 }
 

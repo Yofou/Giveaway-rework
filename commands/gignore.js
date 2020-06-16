@@ -40,7 +40,7 @@ class Gignore extends BaseCommand {
     // some perm checking
     if (!message.member.hasPermission('ADMINISTRATOR')) {
       return message.reply(
-        this.usageEmbed(client.prefix(message), 'Sorry but you don\'t have the **ADMINISTRATOR** permission!')
+        this.usageEmbed(await client.prefix(message), 'Sorry but you don\'t have the **ADMINISTRATOR** permission!')
       );
     }
 
@@ -128,7 +128,7 @@ class Gignore extends BaseCommand {
           );
           if (!channel) {
             return message.channel.send(
-              this.usageEmbed(client.prefix(message), `Can't find the channel by \`${channelID}\``)
+              this.usageEmbed(await client.prefix(message), `Can't find the channel by \`${channelID}\``)
             );
           }
           channelID = channel.id;

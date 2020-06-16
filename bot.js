@@ -3,6 +3,7 @@ const moment = require('moment');
 const glob = require('glob');
 const { parse } = require('path');
 require('moment-precise-range-plugin'); // for precise difference time calculation
+const DB = require('./databases/db.js')
 
 const baseOptions = {
   messageCacheMaxSize: 100, // msgs
@@ -20,12 +21,18 @@ class Bot extends Client {
     this.Constants = Constants;
   }
 
-  prefix (message = undefined) {
-    const prefixes = require('./databases/prefix.json');
-    let prefix = this.config.get('defaultPrefix');
+  async prefix (message = undefined) {
+
+    let prefix;
+    prefix = this.config.get('defaultPrefix');
     if (!prefix) prefix = '>';
-    if (!message) return prefix;
-    return prefixes[message.guild.id] ? prefixes[message.guild.id] : prefix;
+
+    if (message){
+      let dbPrefix = await DB.sequelize.models.prefix.findByPk( message.guild.id )
+      if (dbPrefix) prefix = dbPrefix.prefix
+    }
+
+    return prefix
   }
 
   buildCollection () {
@@ -188,8 +195,10 @@ class Bot extends Client {
     if (!message.channel.permissionsFor(message.guild.me).has('SEND_MESSAGES')) { return; }
 
     let content;
-    if (message.content.startsWith(this.prefix(message))) {
-      content = message.content.slice(this.prefix(message).length).trim();
+    let prefix = await this.prefix(message)
+    console.log(prefix);
+    if (message.content.startsWith(prefix)) {
+      content = message.content.slice(prefix.length).trim();
     } else if (message.content.startsWith(`<@!${message.member.guild.me.id}>`)) {
       content = message.content.slice(`<@!${message.member.guild.me.id}>`.length).trim();
     } else {
@@ -213,7 +222,7 @@ class Bot extends Client {
 
     if (command.args && !args.length) {
       if (command.usage) {
-        message.channel.send(await command.usageEmbed(this.prefix(message), '', message.guild))
+        message.channel.send(await command.usageEmbed(prefix, '', message.guild))
           .catch(err => console.error(err));
       }
       return;

@@ -77,7 +77,7 @@ class Grole extends BaseCommand {
         } else if (roles.find(role => role.name == roleID)) {
           role = roles.find(role => role.name == roleID);
         } else {
-          return message.channel.send(await this.usageEmbed(client.prefix(message), `Sorry can\'t find the role of ${roleArg}`));
+          return message.channel.send(await this.usageEmbed(await client.prefix(message), `Sorry can\'t find the role of ${roleArg}`));
         }
 
         const rolesDB = require('../databases/roles.json');
@@ -101,7 +101,7 @@ class Grole extends BaseCommand {
       })
       .catch(async (e) => {
         console.log(e);
-        return message.channel.send(await this.usageEmbed(client.prefix(message), 'Uh oh unexpected error please contact Yofou#0420'));
+        return message.channel.send(await this.usageEmbed(await client.prefix(message), 'Uh oh unexpected error please contact Yofou#0420'));
       });
   }
 }

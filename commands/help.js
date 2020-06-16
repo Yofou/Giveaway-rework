@@ -10,20 +10,21 @@ class Help extends Command {
   async run (client, message, args) {
     const helpEmbed = this.RichEmbed().setColor('#7FB3D5');
     let data;
+    let prefix = await client.prefix(message)
 
     if (args.length > 0) {
       const command = client.commands.find(cmd => cmd.name == args[0] || cmd.allias.includes(args[0]));
       if (!command) return message.channel.send(`Sorry, I can't find the command called **${args[0]}**`);
-      return message.channel.send(await command.usageEmbed(client.prefix(message)))
+      return message.channel.send(await command.usageEmbed(prefix))
         .catch(err => console.error(err));
     }
 
     // Other Commands w/o Args
     data = [];
     client.commands
-      .forEach(cmd => {
+      .forEach( async (cmd) => {
         if (!cmd.category) {
-          if (!cmd.secret) { data.push(`**${client.prefix(message)}${cmd.name}** - ${cmd.description}`); }
+          if (!cmd.secret) { data.push(`**${prefix}${cmd.name}** - ${cmd.description}`); }
         }
       });
     helpEmbed.addField('General', data.join('\n'));
