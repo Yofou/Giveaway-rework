@@ -24,7 +24,7 @@ class Gcreate extends BaseCommand {
     message.channel.send(questions[index][0]).then(() => {
       // Listen for a answer
       message.channel.awaitMessages(response => response.author.id == message.author.id, { max: 1, time: 120000, errors: ['time'] })
-    		.then(collected => {
+    		.then( async (collected) => {
           let answer = collected.first();
 
           if (answer.attachments.first()) {
@@ -34,9 +34,9 @@ class Gcreate extends BaseCommand {
           }
 
           if (answer.toLowerCase() == 'cancel') return collected.first().react('👌');
-          if (questions[index][1](answer)) {
+          if (await questions[index][1](answer)) {
             // Some prefix so the >post know where talking about the channel selection or who hosting the giveaway
-            if (index == 4) {
+            if (index == 5) {
               answers.push('-c');
               if (answer.toLowerCase() == 'here') answer = message.channel.id;
             }
@@ -138,10 +138,10 @@ class Gcreate extends BaseCommand {
 
         return true;
       }],
-      ['and... the channel? **(type `here` if you want the giveaway to be posted in this channel)**', (answer) => {
+      ['and... the channel? **(type `here` if you want the giveaway to be posted in this channel)**', async (answer) => {
         if (answer.toLowerCase() == 'here') answer = message.channel.id;
 
-        const channel = this.channelValidation(message, ['-c', answer]);
+        const channel = await this.channelValidation(message, ['-c', answer]);
         if (channel.error) { message.channel.send(channel.error); return false; }
 
         return true;

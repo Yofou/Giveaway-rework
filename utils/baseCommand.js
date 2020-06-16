@@ -48,7 +48,7 @@ class Command {
     return new MessageEmbed();
   }
 
-  channelValidation (message, args) {
+  async channelValidation (message, args) {
     const responseObj = {
       args: args,
       channel: message.channel,
@@ -73,12 +73,16 @@ class Command {
         if (!channel) { responseObj.error = `Sorry But I can\'t find any channel via ID by ${channelInput}`; return responseObj; }
       }
 
-      const ignored = require('../databases/ignore.json');
-      if (ignored.channels) {
-        if (ignored.channels.includes(channel.id)) {
-          responseObj.error = 'Sorry but I can\'t post Giveaways in that channel (Channel is restricted by admins)'; return responseObj;
+
+      const channelsDB = await DB.sequelize.models.channel.findAll({
+        where: {
+          guildID: message.guild.id
         }
+      })
+      if (channelsDB.map( channel => channel.channelID ).includes(channel.id)) {
+        responseObj.error = 'Sorry but I can\'t post Giveaways in that channel (Channel is restricted by admins)'; return responseObj;
       }
+
 
       if (channel.permissionsFor(message.guild.me).has(['VIEW_CHANNEL', 'SEND_MESSAGES']) == false) {
         responseObj.error = 'Sorry but I don\'t have permission to view or send messages to that channel'; return responseObj;
@@ -127,7 +131,7 @@ class Command {
 
   async checkGiveawayPerms (message) {
 
-    rolesDB = await DB.sequelize.models.role.findAll({
+    const rolesDB = await DB.sequelize.models.role.findAll({
       where: {
         guildID: message.guild.id
       }

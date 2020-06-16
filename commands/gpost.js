@@ -91,7 +91,7 @@ class Gpost extends BaseCommand {
       });
     }
 
-    let channel = this.channelValidation(message, args);
+    let channel = await this.channelValidation(message, args);
     if (channel.error) return message.channel.send(this.usageEmbed(prefix, channel.error));
     args = channel.args;
     channel = channel.channel;
