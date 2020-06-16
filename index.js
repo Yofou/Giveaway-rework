@@ -20,31 +20,14 @@ const client = new Bot();
 
 client.buildDBs({ config: './config.json' });
 
-client.on('ready', () => {
+client.on('ready', async () => {
   client.buildCommands(`${__dirname}/commands`,{});
 
-  if (!fs.existsSync(`${__dirname}/databases`)) fs.mkdirSync(`${__dirname}/databases`);
-  glob( `${__dirname}/databases/*.json`, async (err,files) => {
-    files = files.map( file => parse( file ).name );
-    const dbs = ['giveaway','ignore','roles','widget','prefix'];
-
-    dbs.forEach( item => {
-      if ( !files.includes( item ) ) {
-        fs.writeFile(`./databases/${item}.json`, JSON.stringify( {}, null, 4 ) , 'utf8', function(err) {
-          if (err) {
-            console.log('An error occurred while writing JSON Object to file.');
-            return console.log(err);
-          }
-          console.log( `${__dirname}/databases/${item}.json has been generated.` )
-        });
-      }
-    });
-
-    console.log(`Logged in as ${client.user.tag}!`);
-    client.user.setActivity(`for ${await client.prefix()}help`, { type: 'WATCHING' })
-      .catch(err => console.error(err));
-  } )
+  console.log(`Logged in as ${client.user.tag}!`);
+  client.user.setActivity(`for ${await client.prefix()}help`, { type: 'WATCHING' })
+    .catch(err => console.error(err));
 });
+
 
 
 client.setInterval( async () => {
