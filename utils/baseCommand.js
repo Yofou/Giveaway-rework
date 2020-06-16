@@ -1,6 +1,7 @@
 const { MessageEmbed, TextChannel, version } = require('discord.js');
 const fs = require('fs');
 const Pages = require('./pagers.js');
+const DB = require('../databases/db.js')
 
 const defaultOptions = {
   args: true,
@@ -124,40 +125,41 @@ class Command {
     );
   }
 
-  checkGiveawayPerms (message) {
-    let userpass = false;
-    // check if the user has permission or an override role to use this command
-    const rolesDB = require('../databases/roles.json');
-    if (rolesDB[message.guild.id]) {
-      for (const roleID of rolesDB[message.guild.id]) {
-        if (message.member.roles.cache.has(roleID)) userpass = true; break;
+  async checkGiveawayPerms (message) {
+
+    rolesDB = await DB.sequelize.models.role.findAll({
+      where: {
+        guildID: message.guild.id
       }
-    }
+    })
+
+    let userpass = rolesDB.some( role => message.member.roles.cache.has(role.id) )
 
     return (!message.member.hasPermission('MANAGE_GUILD') && !userpass);
   }
 
   async getSafeRoleDB (guild) {
-    const rolesDB = require('../databases/roles.json');
-    const filter = [];
 
-    if (!rolesDB[guild.id]) return false;
+    const rolesDB = await DB.sequelize.models.role.findAll({
+      where: {
+        guildID: guild.id
+      }
+    })
 
-    return await guild.roles
-      .fetch()
-      .then((roles) => {
-        for (const roleID of rolesDB[guild.id]) {
-          if (!roles.cache.has(roleID)) filter.push(roleID);
-        }
+    if (!rolesDB.length) return false
 
-        rolesDB[guild.id] = rolesDB[guild.id].filter(role => !filter.includes(role));
+    const guildRoles = await guild.roles.fetch()
+    rolesDB.forEach( async (role, index) => {
+      if (!guildRoles.cache.has(role.roleID)) {
+        await role.destroy();
+      }
+    });
 
-        if (rolesDB[guild.id].length == 0) delete rolesDB[guild.id];
-
-        this.saveJsonFile('./databases/roles.json', JSON.stringify(rolesDB, null, 4));
-
-        return rolesDB;
-      });
+    return await DB.sequelize.models.role.findAll({
+      where: {
+        guildID: guild.id
+      }
+    })
   }
 
   saveJsonFile (filePath, jsonObj) {

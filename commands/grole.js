@@ -1,4 +1,5 @@
 const BaseCommand = require('../utils/baseCommand.js');
+const DB = require('../databases/db.js')
 
 class Grole extends BaseCommand {
   constructor () {
@@ -32,14 +33,10 @@ class Grole extends BaseCommand {
 
     if (!guild) return embed;
 
-    const rolesDB = await this.getSafeRoleDB(guild).then(rolesDB => rolesDB);
+    const rolesDB = await this.getSafeRoleDB(guild)
 
     if (rolesDB) {
-      const response = [];
-      for (const roleID of rolesDB[guild.id]) {
-        response.push(`<@&${roleID}>`);
-      }
-
+      const response = rolesDB.map( role => `<@&${role.roleID}>` )
       if (response.length > 0) embed.addField('Giveaway Roles', response.join(','));
     }
 
@@ -80,24 +77,31 @@ class Grole extends BaseCommand {
           return message.channel.send(await this.usageEmbed(await client.prefix(message), `Sorry can\'t find the role of ${roleArg}`));
         }
 
-        const rolesDB = require('../databases/roles.json');
-
-        if (!rolesDB[message.guild.id]) rolesDB[message.guild.id] = [];
+        const guildRoles = await DB.sequelize.models.role.findAll( {
+          where: {
+            guildID: message.guild.id
+          }
+        } )
+        const roleIDS = guildRoles.map( role => role.roleID )
 
         let response;
-        if (rolesDB[message.guild.id].includes(role.id)) {
-          rolesDB[message.guild.id] = rolesDB[message.guild.id].filter(id => id != role.id);
+        if (roleIDS.includes(role.id)){
+          await guildRoles[ roleIDS.indexOf(role.id) ].destroy();
           response = `Removed <@&${role.id}> from the roster`;
         } else {
-          rolesDB[message.guild.id].push(role.id);
-          response = `Added <@&${role.id}> from the roster`;
+          try {
+            await DB.sequelize.models.role.create({
+              guildID: message.guild.id,
+              roleID: role.id
+            })
+            response = `Added <@&${role.id}> from the roster`;
+          } catch (e) {
+            response = 'Uh oh unexpected error please contact Yofou#0420'
+          }
         }
-
-        if (rolesDB[message.guild.id].length == 0) delete rolesDB[message.guild.id];
 
         message.channel.send(response)
           .catch(err => console.error(err));
-        this.saveJsonFile('./databases/roles.json', JSON.stringify(rolesDB, null, 4));
       })
       .catch(async (e) => {
         console.log(e);

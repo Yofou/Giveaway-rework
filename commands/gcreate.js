@@ -74,7 +74,7 @@ class Gcreate extends BaseCommand {
 
   // This just runs the recursive method called askQuestions
   async run (client, message, args) {
-    if (this.checkGiveawayPerms(message)) return message.channel.send(`<@${message.author.id}> Sorry but you dont have the required role or permissions to run this command`);
+    if (await this.checkGiveawayPerms(message)) return message.channel.send(`<@${message.author.id}> Sorry but you dont have the required role or permissions to run this command`);
 
     // There a lot going on here i wont add a comment through everything but ill give the basic structure of the actual parameters
     // message = the discord.js message class builder

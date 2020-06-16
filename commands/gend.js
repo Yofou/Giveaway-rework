@@ -32,7 +32,7 @@ class Gend extends BaseCommand {
   }
 
   async run (client, message, args) {
-    if (this.checkGiveawayPerms(message)) return message.channel.send(`<@${message.author.id}> Sorry but you dont have the required role or permissions to run this command`);
+    if (await this.checkGiveawayPerms(message)) return message.channel.send(`<@${message.author.id}> Sorry but you dont have the required role or permissions to run this command`);
 
     let channel = this.channelValidation(message, args);
     if (channel.error) return message.channel.send(this.usageEmbed(await client.prefix(message), channel.error));
