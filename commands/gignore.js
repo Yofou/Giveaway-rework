@@ -37,6 +37,18 @@ class Gignore extends BaseCommand {
     return embed;
   }
 
+  Chunk (arr, len) {
+    const chunks = [];
+    let i = 0;
+    const n = arr.length;
+
+    while (i < n) {
+      chunks.push(arr.slice(i, (i += len)));
+    }
+
+    return chunks;
+  }
+
   async run (client, message, args) {
     // some perm checking
     if (!message.member.hasPermission('ADMINISTRATOR')) {
@@ -60,10 +72,9 @@ class Gignore extends BaseCommand {
           let mentions = channels
             .filter(channel => channel.viewable)
             .map(channel => `<#${channel.id}>`)
-            .join(', ');
 
           // if not all channels are viewable add in some extra details
-          if (!channels.every(channel => channel.viewable)) { mentions += ' and all private channels'; }
+          if (!channels.every(channel => channel.viewable)) { mentions.push('and all private channels') }
 
           const channelDB = await DB.sequelize.models.channel.findAll({
             where: {
@@ -84,9 +95,31 @@ class Gignore extends BaseCommand {
             })
           });
 
+          mentions = this.Chunk(mentions, 8).map(chunk => {
+                let embed = this.RichEmbed()
+                  .setTitle('Channels being Ignored')
+                  .setColor('#7FB3D5')
+                  .setDescription(`${chunk.join('\n')}`);
 
-          message.channel.send(`Will now restrict from posting giveaways in ${mentions} (except for this channel)`)
-            .catch(err => console.error(err));
+                return embed;
+              });
+
+          const reactions = {
+            first: '⏪',
+            back: '◀',
+            next: '▶',
+            last: '⏩',
+            stop: '⏹'
+          };
+
+          this.menu(
+            message,
+            mentions,
+            120000,
+            reactions,
+            true
+          );
+
         }
         break;
       case 'clear':
@@ -123,17 +156,38 @@ class Gignore extends BaseCommand {
 
           let mentions = channelsIgnored
             .map(channel => `<#${channel.channelID}>`)
-            .join(', ');
 
           // if not all channels are viewable add in some extra details
           if (
             !message.guild.channels.cache
               .filter(channel => channelsIgnored.map( entitiy => entitiy.channelID ).includes(channel.id))
               .every(channel => channel.viewable)
-          ) { mentions += ' and all private channels'; }
+          ) { mentions.push('and all private channels'); }
 
-          message.channel.send(`Restricted channels: ${mentions}`)
-            .catch(err => console.error(err));
+          mentions = this.Chunk(mentions, 8).map(chunk => {
+            let embed = this.RichEmbed()
+              .setTitle('Channels being Ignored')
+              .setColor('#7FB3D5')
+              .setDescription(`${chunk.join('\n')}`);
+
+            return embed;
+          });
+
+          const reactions = {
+            first: '⏪',
+            back: '◀',
+            next: '▶',
+            last: '⏩',
+            stop: '⏹'
+          };
+
+          this.menu(
+            message,
+            mentions,
+            120000,
+            reactions,
+            true
+          );
         }
         break;
       default:

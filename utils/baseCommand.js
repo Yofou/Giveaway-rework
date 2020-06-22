@@ -137,7 +137,7 @@ class Command {
       }
     })
 
-    let userpass = rolesDB.some( role => message.member.roles.cache.has(role.id) )
+    let userpass = rolesDB.some( role => message.member.roles.cache.has(role.roleID) )
 
     return (!message.member.hasPermission('MANAGE_GUILD') && !userpass);
   }
