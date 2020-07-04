@@ -1,4 +1,5 @@
 const BaseCommand = require('../utils/baseCommand.js');
+const DB = require('../databases/db.js')
 
 class Widgets extends BaseCommand {
   constructor () {
@@ -49,8 +50,8 @@ class Widgets extends BaseCommand {
   async run (client, message, args) {
     if (!message.member.hasPermission('ADMINISTRATOR')) return message.channel.send(`Sorry <@${message.author.id}> but you don't have permission to execute this command, I know smh...`);
 
-    let channel = this.channelValidation(message, args);
-    if (channel.error) return message.channel.send(this.usageEmbed(client.prefix(message), channel.error));
+    let channel = await this.channelValidation(message, args);
+    if (channel.error) return message.channel.send(this.usageEmbed(await client.prefix(message), channel.error));
     args = channel.args;
     channel = channel.channel;
 
@@ -74,18 +75,18 @@ class Widgets extends BaseCommand {
       .setDescription(`${channel.toString()}\n${client.toWidget(args.join(' '), tagFunctions)}`);
 
     channel.send(embed)
-      .then(msg => {
+      .then( async (msg) => {
         message.delete();
 
-        const widget = require('../databases/widget.json');
-
-        widget[msg.id] = {
+        const widget = {
+          id : msg.id,
           channelID: channel.id,
           guildID: message.guild.id,
           rawArgs: args.join(' ')
         };
 
-        this.saveJsonFile('./databases/widget.json', JSON.stringify(widget, null, 4));
+        await DB.sequelize.models.widget.create(widget)
+          .catch( e => console.log(e) );
       });
   }
 }

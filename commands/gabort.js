@@ -1,4 +1,5 @@
 const BaseCommand = require('../utils/baseCommand.js');
+const DB = require('../databases/db.js')
 
 class Gabort extends BaseCommand {
   constructor () {
@@ -29,22 +30,21 @@ class Gabort extends BaseCommand {
   }
 
   async run (client, message, args) {
-    if (this.checkGiveawayPerms(message)) return message.channel.send(`<@${message.author.id}> Sorry but you dont have the required role or permissions to run this command`);
+    if (await this.checkGiveawayPerms(message)) return message.channel.send(`<@${message.author.id}> Sorry but you dont have the required role or permissions to run this command`);
 
-    let channel = this.channelValidation(message, args);
-    if (channel.error) return message.channel.send(this.usageEmbed(client.prefix(message), channel.error));
+    let channel = await this.channelValidation(message, args);
+    if (channel.error) return message.channel.send(this.usageEmbed(await client.prefix(message), channel.error));
     args = channel.args;
     channel = channel.channel;
 
     const [messageID] = args;
-    if (isNaN(Number(messageID))) return message.channel.send(this.usageEmbed(client.prefix(message), 'Invalid message id (Not a number)'));
-    const giveawayDB = require('../databases/giveaway.json');
+    if (isNaN(Number(messageID))) return message.channel.send(this.usageEmbed(await client.prefix(message), 'Invalid message id (Not a number)'));
 
     const msgChannel = message;
 
     channel.messages
       .fetch(messageID)
-      .then(message => {
+      .then( async (message) => {
         const originalEmbed = message.embeds[0];
 
         const embed = this.RichEmbed()
@@ -56,12 +56,14 @@ class Gabort extends BaseCommand {
         message.edit(embed);
         message.unpin().catch(err => console.error(err));
         message.reactions.removeAll().catch(error => console.error('Failed to clear reactions: ', error));
-        delete giveawayDB[messageID];
-        this.saveJsonFile('./databases/giveaway.json', JSON.stringify(giveawayDB, null, 4));
-        msgChannel.channel.send('😢 Giveaway Aborted 😢');
+        const giveaway = await DB.sequelize.models.giveaway.findByPk( message.id )
+        if (giveaway) {
+          await giveaway.destroy()
+          msgChannel.channel.send('😢 Giveaway Aborted 😢');
+        }
       })
-      .catch(e => {
-        message.channel.send(this.usageEmbed(client.prefix(message), 'Can\'t find the a message in this channel by that id'));
+      .catch( async (e) => {
+        message.channel.send(this.usageEmbed(await client.prefix(message), 'Can\'t find the a message in this channel by that id'));
       });
   }
 }

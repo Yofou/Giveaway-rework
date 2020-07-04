@@ -1,5 +1,6 @@
 const BaseCommand = require('../utils/baseCommand.js');
 const fs = require('fs');
+const DB = require('../databases/db.js')
 
 class Gignore extends BaseCommand {
   constructor () {
@@ -36,19 +37,27 @@ class Gignore extends BaseCommand {
     return embed;
   }
 
+  Chunk (arr, len) {
+    const chunks = [];
+    let i = 0;
+    const n = arr.length;
+
+    while (i < n) {
+      chunks.push(arr.slice(i, (i += len)));
+    }
+
+    return chunks;
+  }
+
   async run (client, message, args) {
     // some perm checking
     if (!message.member.hasPermission('ADMINISTRATOR')) {
       return message.reply(
-        this.usageEmbed(client.prefix(message), 'Sorry but you don\'t have the **ADMINISTRATOR** permission!')
+        this.usageEmbed(await client.prefix(message), 'Sorry but you don\'t have the **ADMINISTRATOR** permission!')
       );
     }
 
-    const ignored = require('../databases/ignore.json');
     let channelID = args[0];
-
-    // initialize list if needed (never set before)
-    if (!ignored.channels) ignored.channels = [];
 
     switch (channelID) {
       case 'all':
@@ -63,59 +72,124 @@ class Gignore extends BaseCommand {
           let mentions = channels
             .filter(channel => channel.viewable)
             .map(channel => `<#${channel.id}>`)
-            .join(', ');
 
           // if not all channels are viewable add in some extra details
-          if (!channels.every(channel => channel.viewable)) { mentions += ' and all private channels'; }
+          if (!channels.every(channel => channel.viewable)) { mentions.push('and all private channels') }
 
-          channels = channels.map(channel => channel.id);
-          ignored.channels = [...new Set(ignored.channels.concat(channels))]; // filter unique ids
+          const channelDB = await DB.sequelize.models.channel.findAll({
+            where: {
+              guildID: message.guild.id
+            }
+          })
 
-          message.channel.send(`Will now restrict from posting giveaways in ${mentions} (except for this channel)`)
-            .catch(err => console.error(err));
+          const allChannelDbIds = channelDB.map( channel => channel.channelID )
+
+          channels = channels
+            .map(channel => channel.id)
+            .filter( channel => !allChannelDbIds.includes( channel ) );
+
+          channels.forEach( async (channel) => {
+            await DB.sequelize.models.channel.create({
+              channelID: channel,
+              guildID: message.guild.id
+            })
+          });
+
+          mentions = this.Chunk(mentions, 8).map(chunk => {
+                let embed = this.RichEmbed()
+                  .setTitle('Channels being Ignored')
+                  .setColor('#7FB3D5')
+                  .setDescription(`${chunk.join('\n')}`);
+
+                return embed;
+              });
+
+          const reactions = {
+            first: '⏪',
+            back: '◀',
+            next: '▶',
+            last: '⏩',
+            stop: '⏹'
+          };
+
+          this.menu(
+            message,
+            mentions,
+            120000,
+            reactions,
+            true
+          );
+
         }
         break;
       case 'clear':
         {
-          const allChannels = message.guild.channels.cache.map(
-            channel => channel.id
-          );
 
-          // remove all the channels from the ignored list
-          ignored.channels = ignored.channels.filter(
-            channelID => !allChannels.includes(channelID)
-          );
+          try {
 
-          message.channel.send('all channels can be used for giveaways!')
+            await DB.sequelize.models.channel.destroy({
+              where: {
+                guildID: message.guild.id
+              }
+            })
+
+            message.channel.send('all channels can be used for giveaways!')
             .catch(err => console.error(err));
+          } catch (e) {
+            message.channel.send('Uh oh something went wrong, please contact Yofou#0420')
+            console.log(e);
+          }
+
         }
         break;
       case 'list':
         {
-          const channelsIgnored = message.guild.channels.cache.filter(
-            channel => ignored.channels.includes(channel.id) && channel.viewable
-          );
+          const channelsIgnored = await DB.sequelize.models.channel.findAll({
+            where: {
+              guildID: message.guild.id
+            }
+          })
 
-          if (channelsIgnored.size == 0) {
+          if (channelsIgnored.length == 0) {
             return message.channel.send('Not ignoring any channel');
           }
 
           let mentions = channelsIgnored
-            .map(channel => `<#${channel.id}>`)
-            .join(', ');
+            .map(channel => `<#${channel.channelID}>`)
 
           // if not all channels are viewable add in some extra details
           if (
             !message.guild.channels.cache
-              .filter(channel => ignored.channels.includes(channel.id))
+              .filter(channel => channelsIgnored.map( entitiy => entitiy.channelID ).includes(channel.id))
               .every(channel => channel.viewable)
-          ) { mentions += ' and all private channels'; }
+          ) { mentions.push('and all private channels'); }
 
-          message.channel.send(`Restricted channels: ${mentions}`)
-            .catch(err => console.error(err));
+          mentions = this.Chunk(mentions, 8).map(chunk => {
+            let embed = this.RichEmbed()
+              .setTitle('Channels being Ignored')
+              .setColor('#7FB3D5')
+              .setDescription(`${chunk.join('\n')}`);
+
+            return embed;
+          });
+
+          const reactions = {
+            first: '⏪',
+            back: '◀',
+            next: '▶',
+            last: '⏩',
+            stop: '⏹'
+          };
+
+          this.menu(
+            message,
+            mentions,
+            120000,
+            reactions,
+            true
+          );
         }
         break;
-
       default:
         {
           // // Data validation
@@ -128,33 +202,33 @@ class Gignore extends BaseCommand {
           );
           if (!channel) {
             return message.channel.send(
-              this.usageEmbed(client.prefix(message), `Can't find the channel by \`${channelID}\``)
+              this.usageEmbed(await client.prefix(message), `Can't find the channel by \`${channelID}\``)
             );
           }
           channelID = channel.id;
 
+          const ignoredChannel = await DB.sequelize.models.channel.findOne({
+            where: {
+              channelID: channelID
+            }
+          })
           // remove or add to list
-          if (ignored.channels.includes(channelID)) {
-            ignored.channels = ignored.channels.filter(
-              channel => channel != channelID
-            );
-
+          if (ignoredChannel) {
+            ignoredChannel.destroy()
             message.channel.send(`Removed <#${channelID}> from giveaway restrictions!`)
               .catch(err => console.error(err));
           } else {
-            ignored.channels.push(channelID);
+            await DB.sequelize.models.channel.create({
+              channelID: channelID,
+              guildID: message.guild.id
+            }).catch(err => console.error(err));
+
             message.channel.send(`Will now restrict from posting giveaways in <#${channelID}>`)
               .catch(err => console.error(err));
           }
         }
         break;
     }
-
-    // write the data to the file
-    this.saveJsonFile(
-      './databases/ignore.json',
-      JSON.stringify(ignored, null, 4)
-    );
   }
 }
 
